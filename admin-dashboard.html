@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ResourceHub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dashboard-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fas fa-cube"></i>
+                <span>ResourceHub</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-list-item">
+                    <a href="#" class="nav-list-link active" data-section="overview">
+                        <i class="fas fa-th-large"></i>
+                        <span>Overview</span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="#" class="nav-list-link" data-section="resources">
+                        <i class="fas fa-boxes-stacked"></i>
+                        <span>Resources</span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="#" class="nav-list-link" data-section="users">
+                        <i class="fas fa-users"></i>
+                        <span>Users</span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="#" class="nav-list-link" data-section="requests">
+                        <i class="fas fa-clipboard-list"></i>
+                        <span>Requests</span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="#" class="nav-list-link" data-section="analytics">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li class="nav-list-item">
+                    <a href="#" class="nav-list-link" data-section="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar">AD</div>
+                <div class="sidebar-user-info">
+                    <p class="sidebar-user-name">Admin User</p>
+                    <p class="sidebar-user-role">Administrator</p>
+                </div>
+            </div>
+            <a href="auth.html" class="sidebar-logout" title="Logout">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="dashboard-main" id="dashboardMain">
+
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="topbar-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search resources, users...">
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="topbar-icon-btn" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge-dot"></span>
+                </button>
+                <button class="topbar-icon-btn" title="Messages">
+                    <i class="fas fa-envelope"></i>
+                    <span class="badge-count">3</span>
+                </button>
+                <div class="topbar-user">
+                    <div class="topbar-avatar">AD</div>
+                    <span>Admin</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- ============== OVERVIEW SECTION ============== -->
+        <section class="dashboard-section active" id="section-overview">
+            <div class="section-header">
+                <div>
+                    <h1>Dashboard Overview</h1>
+                    <p>Welcome back, Admin! Here's what's happening today.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showAdminModal('addResource')">
+                        <i class="fas fa-plus"></i> Add Resource
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(108,60,233,0.1); color: var(--primary);">
+                        <i class="fas fa-boxes-stacked"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <p class="stat-card-label">Total Resources</p>
+                        <h3 class="stat-card-value">1,248</h3>
+                        <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> 12% from last month</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(14,165,233,0.1); color: var(--secondary);">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <p class="stat-card-label">Active Users</p>
+                        <h3 class="stat-card-value">384</h3>
+                        <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> 8% from last month</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(245,158,11,0.1); color: var(--accent);">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <p class="stat-card-label">Pending Requests</p>
+                        <h3 class="stat-card-value">27</h3>
+                        <p class="stat-card-change negative"><i class="fas fa-arrow-down"></i> 3% from last month</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon" style="background: rgba(16,185,129,0.1); color: var(--success);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-card-info">
+                        <p class="stat-card-label">Utilization Rate</p>
+                        <h3 class="stat-card-value">87.5%</h3>
+                        <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> 5% from last month</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card wide">
+                    <div class="chart-card-header">
+                        <h3>Resource Allocation Trends</h3>
+                        <div class="chart-filter">
+                            <button class="chart-filter-btn active">Week</button>
+                            <button class="chart-filter-btn">Month</button>
+                            <button class="chart-filter-btn">Year</button>
+                        </div>
+                    </div>
+                    <div class="chart-placeholder">
+                        <div class="bar-chart" id="allocationChart">
+                            <div class="bar-group">
+                                <div class="bar" style="height: 60%;" data-value="60"></div>
+                                <span>Mon</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 80%;" data-value="80"></div>
+                                <span>Tue</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 45%;" data-value="45"></div>
+                                <span>Wed</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 90%;" data-value="90"></div>
+                                <span>Thu</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 70%;" data-value="70"></div>
+                                <span>Fri</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 55%;" data-value="55"></div>
+                                <span>Sat</span>
+                            </div>
+                            <div class="bar-group">
+                                <div class="bar" style="height: 35%;" data-value="35"></div>
+                                <span>Sun</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-card-header">
+                        <h3>Resource Categories</h3>
+                    </div>
+                    <div class="chart-placeholder">
+                        <div class="donut-chart">
+                            <div class="donut-ring">
+                                <svg viewBox="0 0 120 120">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="14"/>
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#6c3ce9" stroke-width="14" stroke-dasharray="110 204" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#0ea5e9" stroke-width="14" stroke-dasharray="70 244" stroke-dashoffset="-110" transform="rotate(-90 60 60)"/>
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#f59e0b" stroke-width="14" stroke-dasharray="55 259" stroke-dashoffset="-180" transform="rotate(-90 60 60)"/>
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#10b981" stroke-width="14" stroke-dasharray="79 235" stroke-dashoffset="-235" transform="rotate(-90 60 60)"/>
+                                </svg>
+                                <div class="donut-center">
+                                    <strong>1,248</strong>
+                                    <span>Total</span>
+                                </div>
+                            </div>
+                            <div class="donut-legend">
+                                <div class="legend-item"><span class="legend-dot" style="background:#6c3ce9"></span> Hardware (35%)</div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#0ea5e9"></span> Software (22%)</div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> Licenses (18%)</div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span> Others (25%)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity & Quick Actions -->
+            <div class="dashboard-row">
+                <div class="dashboard-card wide">
+                    <div class="card-header">
+                        <h3>Recent Activity</h3>
+                        <a href="#" class="view-all-link">View All</a>
+                    </div>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:rgba(16,185,129,0.1); color:var(--success);">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="activity-info">
+                                <p><strong>Sarah Connor</strong> approved resource request #1042</p>
+                                <span>2 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:rgba(108,60,233,0.1); color:var(--primary);">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <div class="activity-info">
+                                <p><strong>John Smith</strong> added 15 new hardware resources</p>
+                                <span>28 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:rgba(245,158,11,0.1); color:var(--accent);">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="activity-info">
+                                <p><strong>Emily Davis</strong> submitted a new resource request</p>
+                                <span>1 hour ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:rgba(239,68,68,0.1); color:var(--danger);">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="activity-info">
+                                <p><strong>System</strong> detected low inventory for "Dell Monitors"</p>
+                                <span>3 hours ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:rgba(14,165,233,0.1); color:var(--secondary);">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-info">
+                                <p><strong>Mike Johnson</strong> registered as a new user</p>
+                                <span>5 hours ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="showAdminModal('addResource')">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Add Resource</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="navigateTo('users')">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add User</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="navigateTo('requests')">
+                            <i class="fas fa-clipboard-check"></i>
+                            <span>Review Requests</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="navigateTo('analytics')">
+                            <i class="fas fa-file-export"></i>
+                            <span>Export Report</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============== RESOURCES SECTION ============== -->
+        <section class="dashboard-section" id="section-resources">
+            <div class="section-header">
+                <div>
+                    <h1>Resource Management</h1>
+                    <p>Manage and track all resources across your organization.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-secondary btn-sm">
+                        <i class="fas fa-file-export"></i> Export
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="showAdminModal('addResource')">
+                        <i class="fas fa-plus"></i> Add Resource
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="table-filters">
+                <div class="filter-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search resources..." id="resourceSearch">
+                </div>
+                <div class="filter-group">
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="hardware">Hardware</option>
+                        <option value="software">Software</option>
+                        <option value="license">Licenses</option>
+                        <option value="equipment">Equipment</option>
+                    </select>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="available">Available</option>
+                        <option value="in-use">In Use</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="retired">Retired</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Resources Table -->
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="select-all"></th>
+                            <th>Resource Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td><strong>MacBook Pro 16"</strong></td>
+                            <td><span class="category-badge hardware">Hardware</span></td>
+                            <td><span class="status-badge available">Available</span></td>
+                            <td>—</td>
+                            <td>Feb 17, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td><strong>Adobe Creative Suite</strong></td>
+                            <td><span class="category-badge software">Software</span></td>
+                            <td><span class="status-badge in-use">In Use</span></td>
+                            <td>Sarah Connor</td>
+                            <td>Feb 16, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td><strong>Microsoft 365 License</strong></td>
+                            <td><span class="category-badge license">License</span></td>
+                            <td><span class="status-badge in-use">In Use</span></td>
+                            <td>John Smith</td>
+                            <td>Feb 15, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td><strong>Dell UltraSharp Monitor</strong></td>
+                            <td><span class="category-badge hardware">Hardware</span></td>
+                            <td><span class="status-badge maintenance">Maintenance</span></td>
+                            <td>—</td>
+                            <td>Feb 14, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td><strong>Slack Business+</strong></td>
+                            <td><span class="category-badge software">Software</span></td>
+                            <td><span class="status-badge available">Available</span></td>
+                            <td>—</td>
+                            <td>Feb 13, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td><strong>Conference Room A/V</strong></td>
+                            <td><span class="category-badge equipment">Equipment</span></td>
+                            <td><span class="status-badge in-use">In Use</span></td>
+                            <td>Team Alpha</td>
+                            <td>Feb 12, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="table-pagination">
+                <p class="pagination-info">Showing 1-6 of 1,248 resources</p>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <span class="page-dots">...</span>
+                    <button class="page-btn">208</button>
+                    <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============== USERS SECTION ============== -->
+        <section class="dashboard-section" id="section-users">
+            <div class="section-header">
+                <div>
+                    <h1>User Management</h1>
+                    <p>Manage user accounts, roles and permissions.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showAdminModal('addUser')">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-filters">
+                <div class="filter-search">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search users...">
+                </div>
+                <div class="filter-group">
+                    <select class="filter-select">
+                        <option value="">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                        <option value="customer">Customer</option>
+                    </select>
+                    <select class="filter-select">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" class="select-all"></th>
+                            <th>User</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-cell-avatar" style="background:var(--gradient-1);">SC</div>
+                                    <strong>Sarah Connor</strong>
+                                </div>
+                            </td>
+                            <td>sarah.connor@email.com</td>
+                            <td><span class="role-badge admin">Admin</span></td>
+                            <td><span class="status-badge available">Active</span></td>
+                            <td>Jan 10, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-cell-avatar" style="background:var(--gradient-2);">JS</div>
+                                    <strong>John Smith</strong>
+                                </div>
+                            </td>
+                            <td>john.smith@email.com</td>
+                            <td><span class="role-badge manager">Manager</span></td>
+                            <td><span class="status-badge available">Active</span></td>
+                            <td>Jan 22, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">ED</div>
+                                    <strong>Emily Davis</strong>
+                                </div>
+                            </td>
+                            <td>emily.davis@email.com</td>
+                            <td><span class="role-badge customer">Customer</span></td>
+                            <td><span class="status-badge available">Active</span></td>
+                            <td>Feb 02, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><input type="checkbox"></td>
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-cell-avatar" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">MJ</div>
+                                    <strong>Mike Johnson</strong>
+                                </div>
+                            </td>
+                            <td>mike.johnson@email.com</td>
+                            <td><span class="role-badge customer">Customer</span></td>
+                            <td><span class="status-badge maintenance">Inactive</span></td>
+                            <td>Feb 10, 2026</td>
+                            <td class="actions-cell">
+                                <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
+                                <button class="action-btn delete" title="Delete"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-pagination">
+                <p class="pagination-info">Showing 1-4 of 384 users</p>
+                <div class="pagination-controls">
+                    <button class="page-btn" disabled><i class="fas fa-chevron-left"></i></button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <span class="page-dots">...</span>
+                    <button class="page-btn">64</button>
+                    <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============== REQUESTS SECTION ============== -->
+        <section class="dashboard-section" id="section-requests">
+            <div class="section-header">
+                <div>
+                    <h1>Resource Requests</h1>
+                    <p>Review and manage resource allocation requests.</p>
+                </div>
+            </div>
+
+            <!-- Request Stats -->
+            <div class="request-stats">
+                <div class="request-stat-card">
+                    <div class="request-stat-number" style="color:var(--accent);">27</div>
+                    <div class="request-stat-label">Pending</div>
+                </div>
+                <div class="request-stat-card">
+                    <div class="request-stat-number" style="color:var(--success);">143</div>
+                    <div class="request-stat-label">Approved</div>
+                </div>
+                <div class="request-stat-card">
+                    <div class="request-stat-number" style="color:var(--danger);">12</div>
+                    <div class="request-stat-label">Rejected</div>
+                </div>
+                <div class="request-stat-card">
+                    <div class="request-stat-number" style="color:var(--primary);">182</div>
+                    <div class="request-stat-label">Total</div>
+                </div>
+            </div>
+
+            <!-- Requests List -->
+            <div class="requests-list">
+                <div class="request-card">
+                    <div class="request-card-header">
+                        <div class="request-card-user">
+                            <div class="user-cell-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444);">ED</div>
+                            <div>
+                                <strong>Emily Davis</strong>
+                                <span>Request #1048 &bull; Feb 18, 2026</span>
+                            </div>
+                        </div>
+                        <span class="status-badge pending">Pending</span>
+                    </div>
+                    <div class="request-card-body">
+                        <p><strong>Resource:</strong> MacBook Pro 16" &bull; <strong>Category:</strong> Hardware</p>
+                        <p class="request-reason">Needed for the new design project starting next week. Current machine is unable to handle the rendering workload.</p>
+                    </div>
+                    <div class="request-card-actions">
+                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
+                        <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Reject</button>
+                        <button class="btn btn-ghost btn-sm"><i class="fas fa-comment"></i> Comment</button>
+                    </div>
+                </div>
+
+                <div class="request-card">
+                    <div class="request-card-header">
+                        <div class="request-card-user">
+                            <div class="user-cell-avatar" style="background:linear-gradient(135deg,#10b981,#0ea5e9);">MJ</div>
+                            <div>
+                                <strong>Mike Johnson</strong>
+                                <span>Request #1047 &bull; Feb 17, 2026</span>
+                            </div>
+                        </div>
+                        <span class="status-badge pending">Pending</span>
+                    </div>
+                    <div class="request-card-body">
+                        <p><strong>Resource:</strong> Adobe Creative Suite &bull; <strong>Category:</strong> Software</p>
+                        <p class="request-reason">Need license for marketing content creation. Will be used across the marketing team for campaign materials.</p>
+                    </div>
+                    <div class="request-card-actions">
+                        <button class="btn btn-success btn-sm"><i class="fas fa-check"></i> Approve</button>
+                        <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Reject</button>
+                        <button class="btn btn-ghost btn-sm"><i class="fas fa-comment"></i> Comment</button>
+                    </div>
+                </div>
+
+                <div class="request-card">
+                    <div class="request-card-header">
+                        <div class="request-card-user">
+                            <div class="user-cell-avatar" style="background:var(--gradient-1);">AL</div>
+                            <div>
+                                <strong>Amy Lee</strong>
+                                <span>Request #1046 &bull; Feb 16, 2026</span>
+                            </div>
+                        </div>
+                        <span class="status-badge available">Approved</span>
+                    </div>
+                    <div class="request-card-body">
+                        <p><strong>Resource:</strong> Conference Room A/V Equipment &bull; <strong>Category:</strong> Equipment</p>
+                        <p class="request-reason">Required for the quarterly all-hands meeting on Feb 20th. Need full A/V setup for remote participants.</p>
+                    </div>
+                    <div class="request-card-actions">
+                        <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i> View Details</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============== ANALYTICS SECTION ============== -->
+        <section class="dashboard-section" id="section-analytics">
+            <div class="section-header">
+                <div>
+                    <h1>Analytics</h1>
+                    <p>Detailed insights and reports on resource usage.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-secondary btn-sm">
+                        <i class="fas fa-download"></i> Download Report
+                    </button>
+                </div>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <h4>Resource Utilization by Department</h4>
+                    <div class="progress-list">
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Engineering</span>
+                                <strong>92%</strong>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:92%; background:var(--primary);"></div></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Design</span>
+                                <strong>85%</strong>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:85%; background:var(--secondary);"></div></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Marketing</span>
+                                <strong>78%</strong>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:78%; background:var(--accent);"></div></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>Sales</span>
+                                <strong>65%</strong>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:65%; background:var(--success);"></div></div>
+                        </div>
+                        <div class="progress-item">
+                            <div class="progress-label">
+                                <span>HR</span>
+                                <strong>45%</strong>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width:45%; background:var(--danger);"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analytics-card">
+                    <h4>Monthly Cost Overview</h4>
+                    <div class="cost-metrics">
+                        <div class="cost-item">
+                            <div class="cost-icon"><i class="fas fa-server"></i></div>
+                            <div class="cost-info">
+                                <span>Hardware</span>
+                                <strong>$24,500</strong>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <div class="cost-icon"><i class="fas fa-code"></i></div>
+                            <div class="cost-info">
+                                <span>Software</span>
+                                <strong>$18,200</strong>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <div class="cost-icon"><i class="fas fa-id-card"></i></div>
+                            <div class="cost-info">
+                                <span>Licenses</span>
+                                <strong>$12,800</strong>
+                            </div>
+                        </div>
+                        <div class="cost-item">
+                            <div class="cost-icon"><i class="fas fa-tools"></i></div>
+                            <div class="cost-info">
+                                <span>Maintenance</span>
+                                <strong>$6,400</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="total-cost">
+                        <span>Total Monthly Cost</span>
+                        <strong>$61,900</strong>
+                    </div>
+                </div>
+
+                <div class="analytics-card full-width">
+                    <h4>Top Requested Resources (This Month)</h4>
+                    <div class="top-resources">
+                        <div class="top-resource-item">
+                            <span class="rank">#1</span>
+                            <div class="top-resource-info">
+                                <strong>MacBook Pro 16"</strong>
+                                <span>Hardware</span>
+                            </div>
+                            <div class="top-resource-bar">
+                                <div class="top-resource-fill" style="width:90%;"></div>
+                            </div>
+                            <strong>45 requests</strong>
+                        </div>
+                        <div class="top-resource-item">
+                            <span class="rank">#2</span>
+                            <div class="top-resource-info">
+                                <strong>Adobe Creative Suite</strong>
+                                <span>Software</span>
+                            </div>
+                            <div class="top-resource-bar">
+                                <div class="top-resource-fill" style="width:72%;"></div>
+                            </div>
+                            <strong>36 requests</strong>
+                        </div>
+                        <div class="top-resource-item">
+                            <span class="rank">#3</span>
+                            <div class="top-resource-info">
+                                <strong>Microsoft 365 License</strong>
+                                <span>License</span>
+                            </div>
+                            <div class="top-resource-bar">
+                                <div class="top-resource-fill" style="width:60%;"></div>
+                            </div>
+                            <strong>30 requests</strong>
+                        </div>
+                        <div class="top-resource-item">
+                            <span class="rank">#4</span>
+                            <div class="top-resource-info">
+                                <strong>Dell UltraSharp 27"</strong>
+                                <span>Hardware</span>
+                            </div>
+                            <div class="top-resource-bar">
+                                <div class="top-resource-fill" style="width:48%;"></div>
+                            </div>
+                            <strong>24 requests</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============== SETTINGS SECTION ============== -->
+        <section class="dashboard-section" id="section-settings">
+            <div class="section-header">
+                <div>
+                    <h1>Settings</h1>
+                    <p>Manage your account and platform preferences.</p>
+                </div>
+            </div>
+
+            <div class="settings-grid">
+                <div class="settings-card">
+                    <h3><i class="fas fa-user-circle"></i> Profile Settings</h3>
+                    <form class="settings-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" value="Admin" class="settings-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" value="User" class="settings-input">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" value="admin@resourcehub.com" class="settings-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" value="+1 (555) 123-4567" class="settings-input">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm">Save Changes</button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3><i class="fas fa-bell"></i> Notification Preferences</h3>
+                    <div class="toggle-list">
+                        <div class="toggle-item">
+                            <div>
+                                <strong>Email Notifications</strong>
+                                <p>Receive email alerts for new requests</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-item">
+                            <div>
+                                <strong>Resource Alerts</strong>
+                                <p>Get notified when resources are low</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-item">
+                            <div>
+                                <strong>User Activity</strong>
+                                <p>Notifications for user registrations</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-item">
+                            <div>
+                                <strong>Weekly Reports</strong>
+                                <p>Receive weekly summary reports</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Add Resource Modal -->
+    <div class="modal" id="addResourceModal">
+        <div class="modal-content modal-lg">
+            <button class="modal-close" onclick="closeAdminModal('addResourceModal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3>Add New Resource</h3>
+            <p style="color:var(--gray); margin-bottom: 24px;">Fill in the details to add a new resource to the system.</p>
+            <form class="settings-form">
+                <div class="form-group">
+                    <label>Resource Name</label>
+                    <input type="text" placeholder="e.g., MacBook Pro 16&quot;" class="settings-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select class="settings-input">
+                            <option>Hardware</option>
+                            <option>Software</option>
+                            <option>License</option>
+                            <option>Equipment</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select class="settings-input">
+                            <option>Available</option>
+                            <option>In Use</option>
+                            <option>Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea class="settings-input" rows="3" placeholder="Resource description..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quantity</label>
+                        <input type="number" value="1" min="1" class="settings-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Cost per Unit ($)</label>
+                        <input type="number" value="0" min="0" step="0.01" class="settings-input">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="closeAdminModal('addResourceModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm">Add Resource</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content modal-lg">
+            <button class="modal-close" onclick="closeAdminModal('addUserModal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3>Add New User</h3>
+            <p style="color:var(--gray); margin-bottom: 24px;">Create a new user account for the platform.</p>
+            <form class="settings-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" placeholder="John" class="settings-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" placeholder="Doe" class="settings-input" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" placeholder="user@example.com" class="settings-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select class="settings-input">
+                            <option>Customer</option>
+                            <option>Manager</option>
+                            <option>Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input type="text" placeholder="Engineering" class="settings-input">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="closeAdminModal('addUserModal')">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm">Create User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
