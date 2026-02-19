@@ -1099,12 +1099,17 @@ img { max-width: 100%; }
 }
 
 .input-wrapper i:first-child {
-    position: absolute;
+    position:absolute;
     left: 16px;
     color: var(--gray-light);
     font-size: 0.9rem;
     pointer-events: none;
     transition: var(--transition);
+}
+
+.input-wrapper .toggle-password i {
+    position: relative !important;
+    left:0 ;
 }
 
 .input-wrapper input {
