@@ -20,3 +20,8 @@ rad.json
 *.flf
 #Test results file
 TestResults.xml
+
+# Node
+node_modules/
+server/.env
+client/node_modules/

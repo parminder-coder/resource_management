@@ -65,7 +65,7 @@
                     <p class="sidebar-user-role">Customer</p>
                 </div>
             </div>
-            <a href="auth.html" class="sidebar-logout" title="Logout">
+            <a href="javascript:void(0)" onclick="api.logout()" class="sidebar-logout" title="Logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>
@@ -729,38 +729,40 @@
             </button>
             <h3>Request Resource</h3>
             <p style="color:var(--gray); margin-bottom: 24px;">Provide a reason for your resource request.</p>
-            <form class="settings-form">
+            <form class="settings-form" id="requestResourceForm">
                 <div class="form-group">
                     <label>Resource</label>
-                    <input type="text" value="Selected Resource" class="settings-input" disabled>
+                    <input type="text" id="reqResourceName" value="Selected Resource" class="settings-input" disabled>
+                    <input type="hidden" id="reqResourceId">
                 </div>
                 <div class="form-group">
                     <label>Reason for Request</label>
-                    <textarea class="settings-input" rows="4" placeholder="Explain why you need this resource..." required></textarea>
+                    <textarea id="reqReason" class="settings-input" rows="4" placeholder="Explain why you need this resource..." required></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Priority</label>
-                        <select class="settings-input">
-                            <option>Low</option>
-                            <option selected>Medium</option>
-                            <option>High</option>
-                            <option>Urgent</option>
+                        <select id="reqPriority" class="settings-input">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="urgent">Urgent</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Needed By</label>
-                        <input type="date" class="settings-input">
+                        <input type="date" id="reqNeededBy" class="settings-input">
                     </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="closeCustomerModal('requestResourceModal')">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-sm">Submit Request</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="submitRequestBtn">Submit Request</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>

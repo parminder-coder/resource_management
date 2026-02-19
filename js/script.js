@@ -272,17 +272,25 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Signing in...';
 
-            // Simulate API call
-            await simulateApiCall(1500);
+            try {
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+                const role = document.getElementById('login-role')?.value || 'customer';
 
-            submitBtn.classList.remove('loading');
-            submitBtn.textContent = 'Sign In';
+                const data = await api.login(email, password, role);
+                api.saveAuth(data);
 
-            // Redirect based on selected role
-            const role = document.getElementById('login-role')?.value || 'customer';
-            const dashboardUrl = role === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
-            showModal('successModal', 'You have successfully signed in. Redirecting to your dashboard...');
-            setTimeout(() => { window.location.href = dashboardUrl; }, 1500);
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Sign In';
+
+                const dashboardUrl = data.role === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
+                showModal('successModal', 'You have successfully signed in. Redirecting to your dashboard...');
+                setTimeout(() => { window.location.href = dashboardUrl; }, 1500);
+            } catch (err) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Sign In';
+                showModal('errorModal', err.message || 'Login failed. Please check your credentials.');
+            }
         });
     }
 
@@ -306,7 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const terms = signupForm.querySelector('input[name="terms"]');
             if (terms && !terms.checked) {
                 isValid = false;
-                // Flash the checkbox label
                 const label = terms.closest('.checkbox-label');
                 if (label) {
                     label.style.color = 'var(--danger)';
@@ -320,15 +327,34 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Creating account...';
 
-            // Simulate API call
-            await simulateApiCall(2000);
+            try {
+                const firstName = document.getElementById('signup-firstname')?.value.trim() || '';
+                const lastName = document.getElementById('signup-lastname')?.value.trim() || '';
+                const email = document.getElementById('signup-email')?.value.trim() || '';
+                const company = document.getElementById('signup-company')?.value.trim() || '';
+                const password = document.getElementById('signup-password')?.value || '';
 
-            submitBtn.classList.remove('loading');
-            submitBtn.textContent = 'Create Account';
+                const data = await api.register({
+                    first_name: firstName,
+                    last_name: lastName,
+                    email,
+                    password,
+                    company,
+                    role: 'customer'
+                });
 
-            const firstName = document.getElementById('signup-firstname')?.value || 'there';
-            showModal('successModal', `Welcome aboard, ${firstName}! Your account has been created successfully. Check your email to verify your account.`);
-            setTimeout(() => { window.location.href = 'customer-dashboard.html'; }, 2500);
+                api.saveAuth(data);
+
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Create Account';
+
+                showModal('successModal', `Welcome aboard, ${firstName}! Your account has been created successfully.`);
+                setTimeout(() => { window.location.href = 'customer-dashboard.html'; }, 2000);
+            } catch (err) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = 'Create Account';
+                showModal('errorModal', err.message || 'Registration failed. Please try again.');
+            }
         });
     }
 

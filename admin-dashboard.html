@@ -71,7 +71,7 @@
                     <p class="sidebar-user-role">Administrator</p>
                 </div>
             </div>
-            <a href="auth.html" class="sidebar-logout" title="Logout">
+            <a href="javascript:void(0)" onclick="api.logout()" class="sidebar-logout" title="Logout">
                 <i class="fas fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>
@@ -939,47 +939,47 @@
             </button>
             <h3>Add New Resource</h3>
             <p style="color:var(--gray); margin-bottom: 24px;">Fill in the details to add a new resource to the system.</p>
-            <form class="settings-form">
+            <form class="settings-form" id="addResourceForm">
                 <div class="form-group">
                     <label>Resource Name</label>
-                    <input type="text" placeholder="e.g., MacBook Pro 16&quot;" class="settings-input" required>
+                    <input type="text" id="resName" placeholder="e.g., MacBook Pro 16&quot;" class="settings-input" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Category</label>
-                        <select class="settings-input">
-                            <option>Hardware</option>
-                            <option>Software</option>
-                            <option>License</option>
-                            <option>Equipment</option>
+                        <select id="resCategory" class="settings-input">
+                            <option value="hardware">Hardware</option>
+                            <option value="software">Software</option>
+                            <option value="license">License</option>
+                            <option value="equipment">Equipment</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Status</label>
-                        <select class="settings-input">
-                            <option>Available</option>
-                            <option>In Use</option>
-                            <option>Maintenance</option>
+                        <select id="resStatus" class="settings-input">
+                            <option value="available">Available</option>
+                            <option value="in-use">In Use</option>
+                            <option value="maintenance">Maintenance</option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea class="settings-input" rows="3" placeholder="Resource description..."></textarea>
+                    <textarea id="resDescription" class="settings-input" rows="3" placeholder="Resource description..."></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Quantity</label>
-                        <input type="number" value="1" min="1" class="settings-input">
+                        <input type="number" id="resQty" value="1" min="1" class="settings-input">
                     </div>
                     <div class="form-group">
                         <label>Cost per Unit ($)</label>
-                        <input type="number" value="0" min="0" step="0.01" class="settings-input">
+                        <input type="number" id="resCost" value="0" min="0" step="0.01" class="settings-input">
                     </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="closeAdminModal('addResourceModal')">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-sm">Add Resource</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="addResourceBtn">Add Resource</button>
                 </div>
             </form>
         </div>
@@ -993,43 +993,47 @@
             </button>
             <h3>Add New User</h3>
             <p style="color:var(--gray); margin-bottom: 24px;">Create a new user account for the platform.</p>
-            <form class="settings-form">
+            <form class="settings-form" id="addUserForm">
                 <div class="form-row">
                     <div class="form-group">
                         <label>First Name</label>
-                        <input type="text" placeholder="John" class="settings-input" required>
+                        <input type="text" id="userFirstName" placeholder="John" class="settings-input" required>
                     </div>
                     <div class="form-group">
                         <label>Last Name</label>
-                        <input type="text" placeholder="Doe" class="settings-input" required>
+                        <input type="text" id="userLastName" placeholder="Doe" class="settings-input" required>
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Email Address</label>
-                    <input type="email" placeholder="user@example.com" class="settings-input" required>
+                    <input type="email" id="userEmail" placeholder="user@example.com" class="settings-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="userPassword" placeholder="Min 6 characters" class="settings-input" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Role</label>
-                        <select class="settings-input">
-                            <option>Customer</option>
-                            <option>Manager</option>
-                            <option>Admin</option>
+                        <select id="userRole" class="settings-input">
+                            <option value="customer">Customer</option>
+                            <option value="admin">Admin</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Department</label>
-                        <input type="text" placeholder="Engineering" class="settings-input">
+                        <label>Company</label>
+                        <input type="text" id="userCompany" placeholder="Acme Corp" class="settings-input">
                     </div>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn btn-ghost btn-sm" onclick="closeAdminModal('addUserModal')">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-sm">Create User</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="createUserBtn">Create User</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <script src="js/api.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html>
