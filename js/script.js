@@ -272,25 +272,13 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Signing in...';
 
-            try {
-                const email = document.getElementById('login-email').value.trim();
-                const password = document.getElementById('login-password').value;
-                const role = document.getElementById('login-role')?.value || 'customer';
+            // Simulate API call
+            await simulateApiCall(1500);
 
-                const data = await api.login(email, password, role);
-                api.saveAuth(data);
+            submitBtn.classList.remove('loading');
+            submitBtn.textContent = 'Sign In';
 
-                submitBtn.classList.remove('loading');
-                submitBtn.textContent = 'Sign In';
-
-                const dashboardUrl = data.role === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
-                showModal('successModal', 'You have successfully signed in. Redirecting to your dashboard...');
-                setTimeout(() => { window.location.href = dashboardUrl; }, 1500);
-            } catch (err) {
-                submitBtn.classList.remove('loading');
-                submitBtn.textContent = 'Sign In';
-                showModal('errorModal', err.message || 'Login failed. Please check your credentials.');
-            }
+            showModal('successModal', 'You have successfully signed in. Redirecting to your dashboard...');
         });
     }
 
@@ -314,6 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const terms = signupForm.querySelector('input[name="terms"]');
             if (terms && !terms.checked) {
                 isValid = false;
+                // Flash the checkbox label
                 const label = terms.closest('.checkbox-label');
                 if (label) {
                     label.style.color = 'var(--danger)';
@@ -327,34 +316,14 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Creating account...';
 
-            try {
-                const firstName = document.getElementById('signup-firstname')?.value.trim() || '';
-                const lastName = document.getElementById('signup-lastname')?.value.trim() || '';
-                const email = document.getElementById('signup-email')?.value.trim() || '';
-                const company = document.getElementById('signup-company')?.value.trim() || '';
-                const password = document.getElementById('signup-password')?.value || '';
+            // Simulate API call
+            await simulateApiCall(2000);
 
-                const data = await api.register({
-                    first_name: firstName,
-                    last_name: lastName,
-                    email,
-                    password,
-                    company,
-                    role: 'customer'
-                });
+            submitBtn.classList.remove('loading');
+            submitBtn.textContent = 'Create Account';
 
-                api.saveAuth(data);
-
-                submitBtn.classList.remove('loading');
-                submitBtn.textContent = 'Create Account';
-
-                showModal('successModal', `Welcome aboard, ${firstName}! Your account has been created successfully.`);
-                setTimeout(() => { window.location.href = 'customer-dashboard.html'; }, 2000);
-            } catch (err) {
-                submitBtn.classList.remove('loading');
-                submitBtn.textContent = 'Create Account';
-                showModal('errorModal', err.message || 'Registration failed. Please try again.');
-            }
+            const firstName = document.getElementById('signup-firstname')?.value || 'there';
+            showModal('successModal', `Welcome aboard, ${firstName}! Your account has been created successfully. Check your email to verify your account.`);
         });
     }
 

@@ -192,29 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ─── Table Search Filtering ─────────────────────
-    const resourceSearch = document.getElementById('resourceSearch');
-    if (resourceSearch) {
-        resourceSearch.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#section-resources .data-table tbody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        });
-    }
-
-    const browseSearch = document.getElementById('browseSearch');
-    if (browseSearch) {
-        browseSearch.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('.browse-card');
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(query) ? '' : 'none';
-            });
-        });
-    }
+    // NOTE: search/filter event listeners are attached below in the API DATA LOADING section
 
 
     // ─── Button Click Feedback ──────────────────────
@@ -448,10 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Hook up resource search & filters
-    const resourceSearch = document.getElementById('resourceSearch');
+    const resourceSearchInput = document.getElementById('resourceSearch');
     const categoryFilter = document.getElementById('categoryFilter');
     const statusFilter = document.getElementById('statusFilter');
-    if (resourceSearch) resourceSearch.addEventListener('input', () => loadAdminResources());
+    if (resourceSearchInput) resourceSearchInput.addEventListener('input', () => loadAdminResources());
     if (categoryFilter) categoryFilter.addEventListener('change', () => loadAdminResources());
     if (statusFilter) statusFilter.addEventListener('change', () => loadAdminResources());
 
@@ -677,10 +655,11 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadBrowseResources() {
         try {
             const search = document.getElementById('browseSearch')?.value || '';
-            const resources = await api.getAvailableResources({ search });
+            const data = await api.getAvailableResources({ search });
+            const resources = data.resources || data || [];
             const grid = document.querySelector('.browse-grid');
             if (!grid) return;
-            if (resources.length === 0) {
+            if (!resources.length) {
                 grid.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;grid-column:1/-1;">No resources available at the moment.</p>';
                 return;
             }
@@ -707,8 +686,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Hook browse search
-    const browseSearch = document.getElementById('browseSearch');
-    if (browseSearch) browseSearch.addEventListener('input', () => loadBrowseResources());
+    const browseSearchInput = document.getElementById('browseSearch');
+    if (browseSearchInput) browseSearchInput.addEventListener('input', () => loadBrowseResources());
 
     window.openRequestModal = function (resourceId, resourceName) {
         document.getElementById('reqResourceId').value = resourceId;

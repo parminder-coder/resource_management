@@ -2,7 +2,7 @@
    ResourceHub - API Helper
    =================================================== */
 
-const API_BASE = '/api';
+const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5000/api' : '/api';
 
 const api = {
     // Get stored token
@@ -58,7 +58,9 @@ const api = {
         }
         try {
             const res = await fetch(`${API_BASE}${endpoint}`, config);
-            const data = await res.json();
+            let data;
+            const text = await res.text();
+            try { data = JSON.parse(text); } catch { data = { message: text || 'Server error' }; }
             if (!res.ok) {
                 if (res.status === 401) {
                     this.logout();
@@ -68,6 +70,9 @@ const api = {
             }
             return data;
         } catch (err) {
+            if (err.message === 'Failed to fetch') {
+                throw new Error('Server not reachable. Make sure the backend is running on localhost:5000');
+            }
             console.error('API Error:', err);
             throw err;
         }
