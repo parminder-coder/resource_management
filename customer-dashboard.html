@@ -103,7 +103,7 @@
         <section class="dashboard-section active" id="section-overview">
             <div class="section-header">
                 <div>
-                    <h1>Welcome back, Ishank!</h1>
+                    <h1>Welcome back, <span id="welcomeUserName">there</span>!</h1>
                     <p>Here's a summary of your resource usage and requests.</p>
                 </div>
                 <div class="section-actions">
@@ -121,8 +121,8 @@
                     </div>
                     <div class="stat-card-info">
                         <p class="stat-card-label">Active Resources</p>
-                        <h3 class="stat-card-value">8</h3>
-                        <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> 2 new this month</p>
+                        <h3 class="stat-card-value" id="statActiveResources">0</h3>
+                        <p class="stat-card-change">Currently assigned</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -131,7 +131,7 @@
                     </div>
                     <div class="stat-card-info">
                         <p class="stat-card-label">Pending Requests</p>
-                        <h3 class="stat-card-value">3</h3>
+                        <h3 class="stat-card-value" id="statPendingRequests">0</h3>
                         <p class="stat-card-change">Awaiting approval</p>
                     </div>
                 </div>
@@ -141,8 +141,8 @@
                     </div>
                     <div class="stat-card-info">
                         <p class="stat-card-label">Approved</p>
-                        <h3 class="stat-card-value">12</h3>
-                        <p class="stat-card-change positive"><i class="fas fa-arrow-up"></i> All time</p>
+                        <h3 class="stat-card-value" id="statApprovedRequests">0</h3>
+                        <p class="stat-card-change">All time</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -151,8 +151,8 @@
                     </div>
                     <div class="stat-card-info">
                         <p class="stat-card-label">Next Return Due</p>
-                        <h3 class="stat-card-value">Mar 5</h3>
-                        <p class="stat-card-change">15 days remaining</p>
+                        <h3 class="stat-card-value" id="statNextReturn">—</h3>
+                        <p class="stat-card-change">Check your resources</p>
                     </div>
                 </div>
             </div>
@@ -165,76 +165,18 @@
                         <h3>My Active Resources</h3>
                         <a href="#" class="view-all-link" onclick="navigateTo('my-resources'); return false;">View All</a>
                     </div>
-                    <div class="resource-list-compact">
-                        <div class="resource-list-item">
-                            <div class="resource-item-icon hardware"><i class="fas fa-laptop"></i></div>
-                            <div class="resource-item-info">
-                                <strong>MacBook Pro 14"</strong>
-                                <span>Hardware &bull; Assigned Feb 01, 2026</span>
-                            </div>
-                            <span class="status-badge in-use">In Use</span>
-                        </div>
-                        <div class="resource-list-item">
-                            <div class="resource-item-icon software"><i class="fas fa-palette"></i></div>
-                            <div class="resource-item-info">
-                                <strong>Figma Enterprise</strong>
-                                <span>Software &bull; Assigned Jan 15, 2026</span>
-                            </div>
-                            <span class="status-badge in-use">In Use</span>
-                        </div>
-                        <div class="resource-list-item">
-                            <div class="resource-item-icon license"><i class="fas fa-key"></i></div>
-                            <div class="resource-item-info">
-                                <strong>Microsoft 365 License</strong>
-                                <span>License &bull; Assigned Jan 10, 2026</span>
-                            </div>
-                            <span class="status-badge in-use">In Use</span>
-                        </div>
-                        <div class="resource-list-item">
-                            <div class="resource-item-icon hardware"><i class="fas fa-desktop"></i></div>
-                            <div class="resource-item-info">
-                                <strong>Dell UltraSharp 27" Monitor</strong>
-                                <span>Hardware &bull; Assigned Feb 10, 2026</span>
-                            </div>
-                            <span class="status-badge in-use">In Use</span>
-                        </div>
+                    <div class="resource-list-compact" id="overviewActiveResources">
+                        <p style="text-align:center;color:var(--gray);padding:20px;">Loading...</p>
                     </div>
                 </div>
 
                 <!-- Recent Notifications -->
                 <div class="dashboard-card">
                     <div class="card-header">
-                        <h3>Notifications</h3>
+                        <h3>Recent Activity</h3>
                     </div>
-                    <div class="notification-list">
-                        <div class="notification-item unread">
-                            <div class="notification-dot"></div>
-                            <div class="notification-content">
-                                <p>Your request for <strong>Adobe Creative Suite</strong> has been approved!</p>
-                                <span>2 hours ago</span>
-                            </div>
-                        </div>
-                        <div class="notification-item unread">
-                            <div class="notification-dot"></div>
-                            <div class="notification-content">
-                                <p>Reminder: <strong>Dell Monitor</strong> return due on Mar 5, 2026.</p>
-                                <span>1 day ago</span>
-                            </div>
-                        </div>
-                        <div class="notification-item">
-                            <div class="notification-dot"></div>
-                            <div class="notification-content">
-                                <p>New resources available in <strong>Software</strong> category.</p>
-                                <span>3 days ago</span>
-                            </div>
-                        </div>
-                        <div class="notification-item">
-                            <div class="notification-dot"></div>
-                            <div class="notification-content">
-                                <p>Your request #1035 for <strong>Slack Business+</strong> was rejected.</p>
-                                <span>5 days ago</span>
-                            </div>
-                        </div>
+                    <div class="notification-list" id="overviewRecentActivity">
+                        <p style="text-align:center;color:var(--gray);padding:20px;">Loading...</p>
                     </div>
                 </div>
             </div>

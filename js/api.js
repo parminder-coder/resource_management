@@ -29,9 +29,11 @@ const api = {
     },
     // Logout
     logout() {
-        localStorage.removeItem('rms_token');
-        localStorage.removeItem('rms_user');
-        window.location.href = 'auth.html';
+        if (confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('rms_token');
+            localStorage.removeItem('rms_user');
+            window.location.href = 'auth.html';
+        }
     },
     // Check auth — redirect to auth if not logged in
     requireAuth(expectedRole) {

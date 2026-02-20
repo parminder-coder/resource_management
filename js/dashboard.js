@@ -148,14 +148,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // ─── Logout ─────────────────────────────────────
-    document.querySelectorAll('[data-action="logout"]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            if (confirm('Are you sure you want to logout?')) {
-                api.logout();
-            }
-        });
-    });
+    // Logout is handled via onclick="api.logout()" in HTML
+    // No need for event listener since api.logout() is called directly
 
 
     // ═══════════════════════════════════════════════
@@ -292,10 +286,16 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await api.deleteResource(id);
             showToast('Resource deleted');
+            loadMyResources();
             loadAdminResources();
         } catch (e) {
             showToast(e.message, 'error');
         }
+    };
+
+    window.editResource = function(id) {
+        showToast('Edit feature coming soon!', 'error');
+        // TODO: Implement edit resource modal
     };
 
     async function loadAdminUsers(page = 1) {
@@ -476,6 +476,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadCustomerOverview() {
         try {
+            // Update welcome message with logged-in user's name
+            const welcomeEl = document.getElementById('welcomeUserName');
+            if (welcomeEl) {
+                welcomeEl.textContent = user.first_name || 'there';
+            }
+
+            // Load stats
             const stats = await api.getResourceStats();
             const counts = await api.getRequestCounts();
             
@@ -483,7 +490,46 @@ document.addEventListener('DOMContentLoaded', () => {
             if (statValues[0]) statValues[0].textContent = stats.data?.total_resources ?? 0;
             if (statValues[1]) statValues[1].textContent = counts.data?.pending ?? 0;
             if (statValues[2]) statValues[2].textContent = counts.data?.approved ?? 0;
-            if (statValues[3]) statValues[3].textContent = counts.data?.returned ?? 0;
+            if (statValues[3]) statValues[3].textContent = '—';
+
+            // Load active resources for overview
+            const resourcesList = document.getElementById('overviewActiveResources');
+            if (resourcesList) {
+                const myResources = await api.getMyResources();
+                if (myResources.data?.resources?.length > 0) {
+                    resourcesList.innerHTML = myResources.data.resources.slice(0, 4).map(r => `
+                        <div class="resource-list-item">
+                            <div class="resource-item-icon ${r.category_slug || 'hardware'}"><i class="fas fa-${r.category_slug === 'software' ? 'palette' : r.category_slug === 'license' ? 'key' : 'laptop'}"></i></div>
+                            <div class="resource-item-info">
+                                <strong>${r.title}</strong>
+                                <span>${r.category_name} • Assigned ${formatDate(r.created_at)}</span>
+                            </div>
+                            <span class="status-badge ${r.availability}">${r.availability}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    resourcesList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No active resources</p>';
+                }
+            }
+
+            // Load recent activity (from requests)
+            const activityList = document.getElementById('overviewRecentActivity');
+            if (activityList) {
+                const sentRequests = await api.getSentRequests();
+                if (sentRequests.data?.requests?.length > 0) {
+                    activityList.innerHTML = sentRequests.data.requests.slice(0, 4).map(r => `
+                        <div class="notification-item ${r.status === 'pending' ? 'unread' : ''}">
+                            <div class="notification-dot"></div>
+                            <div class="notification-content">
+                                <p>Your request for <strong>${r.resource_title}</strong> is ${r.status}.</p>
+                                <span>${formatDate(r.requested_at)}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    activityList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No recent activity</p>';
+                }
+            }
         } catch (e) {
             console.error('Customer overview error:', e);
         }

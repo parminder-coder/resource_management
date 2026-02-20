@@ -24,7 +24,7 @@ CREATE TABLE users (
     is_blocked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     INDEX idx_email (email),
     INDEX idx_role (role),
     INDEX idx_verified (is_verified)
@@ -40,7 +40,7 @@ CREATE TABLE categories (
     icon VARCHAR(50) DEFAULT 'fa-box',
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     INDEX idx_slug (slug)
 );
 
@@ -75,10 +75,10 @@ CREATE TABLE resources (
     view_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE RESTRICT,
-    
+
     INDEX idx_owner (owner_id),
     INDEX idx_category (category_id),
     INDEX idx_availability (availability),
@@ -101,11 +101,11 @@ CREATE TABLE requests (
     requested_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     responded_at TIMESTAMP NULL,
     returned_at TIMESTAMP NULL,
-    
+
     FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE,
     FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
-    
+
     INDEX idx_resource (resource_id),
     INDEX idx_requester (requester_id),
     INDEX idx_owner (owner_id),
@@ -124,9 +124,9 @@ CREATE TABLE activity_log (
     entity_id INT,
     details JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-    
+
     INDEX idx_user (user_id),
     INDEX idx_action (action),
     INDEX idx_entity (entity_type, entity_id),
