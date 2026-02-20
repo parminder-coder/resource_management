@@ -39,10 +39,10 @@
                 <div class="testimonial">
                     <p>"ResourceHub transformed how we manage team resources. It's intuitive, powerful, and a game-changer for our operations."</p>
                     <div class="testimonial-author">
-                        <div class="avatar">JD</div>
+                        <div class="avatar">PC</div>
                         <div>
-                            <p class="author-name">John Doe</p>
-                            <p class="author-role">CEO, TechCorp</p>
+                            <p class="author-name">Panic Coders</p>
+                            <p class="author-role">CEO, ResourceHub</p>
                         </div>
                     </div>
                 </div>
@@ -226,7 +226,6 @@
             </div>
             <h3>Welcome to ResourceHub!</h3>
             <p id="successMessage"></p>
-            <button class="btn btn-primary" onclick="location.href='index.html'">Return to Home</button>
         </div>
     </div>
 
@@ -245,6 +244,22 @@
         </div>
     </div>
 
+    <!-- Coming Soon Modal -->
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('comingSoonModal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-icon" style="color: var(--primary);">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h3>Coming Soon!</h3>
+            <p>This feature is coming soon. Stay tuned for updates!</p>
+            <button class="btn btn-primary" onclick="closeModal('comingSoonModal')">Got it</button>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
     <script src="js/script.js"></script>
 </body>
 </html>
