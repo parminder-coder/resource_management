@@ -1351,72 +1351,7 @@
     transition: width 0.8s ease;
 }
 
-/* Cost Metrics */
-.cost-metrics {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 20px;
-}
 
-.cost-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--light-2);
-}
-
-.cost-item:last-child {
-    border-bottom: none;
-}
-
-.cost-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-sm);
-    background: var(--light);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary);
-    font-size: 1rem;
-}
-
-.cost-info {
-    flex: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.cost-info span {
-    font-size: 0.9rem;
-    color: var(--dark-3);
-}
-
-.cost-info strong {
-    font-size: 1rem;
-    color: var(--dark);
-}
-
-.total-cost {
-    display: flex;
-    justify-content: space-between;
-    padding: 16px 0 0;
-    border-top: 2px solid var(--dark);
-}
-
-.total-cost span {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--dark);
-}
-
-.total-cost strong {
-    font-size: 1.25rem;
-    color: var(--primary);
-}
 
 /* Top Resources */
 .top-resources {
