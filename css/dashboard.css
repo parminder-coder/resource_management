@@ -187,10 +187,11 @@
 /* ---------- Main Content Area ---------- */
 .dashboard-main {
     margin-left: 260px;
-    min-height: 100vh;
+    height: 100vh;
     transition: margin-left 0.3s ease;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
 }
 
 .sidebar.collapsed ~ .dashboard-main {
@@ -356,6 +357,7 @@
     padding: 32px;
     overflow-y: auto;
     flex: 1;
+    min-height: 0;
     animation: fadeIn 0.3s ease;
 }
 

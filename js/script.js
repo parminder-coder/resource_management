@@ -278,7 +278,19 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.classList.remove('loading');
             submitBtn.textContent = 'Sign In';
 
-            showModal('successModal', 'You have successfully signed in. Redirecting to your dashboard...');
+            // Save mock auth data so dashboard auth guard passes
+            const email = loginForm.querySelector('input[name="email"]').value;
+            api.saveAuth({
+                token: 'mock-token-' + Date.now(),
+                id: 1,
+                first_name: email.split('@')[0],
+                last_name: '',
+                email: email,
+                role: 'admin',
+                company: 'ResourceHub'
+            });
+
+            window.location.href = 'admin-dashboard.html';
         });
     }
 
@@ -323,7 +335,22 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Create Account';
 
             const firstName = document.getElementById('signup-firstname')?.value || 'there';
-            showModal('successModal', `Welcome aboard, ${firstName}! Your account has been created successfully. Check your email to verify your account.`);
+            const lastName = document.getElementById('signup-lastname')?.value || '';
+            const signupEmail = document.getElementById('signup-email')?.value || '';
+            const company = document.getElementById('signup-company')?.value || '';
+
+            // Save mock auth data so dashboard auth guard passes
+            api.saveAuth({
+                token: 'mock-token-' + Date.now(),
+                id: 1,
+                first_name: firstName,
+                last_name: lastName,
+                email: signupEmail,
+                role: 'admin',
+                company: company
+            });
+
+            window.location.href = 'admin-dashboard.html';
         });
     }
 
