@@ -5,6 +5,12 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ─── Auth Guard ─────────────────────────────────
+    if (typeof api === 'undefined') {
+        console.error('API helper not loaded! Redirecting to auth...');
+        window.location.href = 'auth.html';
+        return;
+    }
+
     const isAdmin = window.location.pathname.includes('admin-dashboard');
     const user = api.requireAuth(isAdmin ? 'admin' : 'user');
     if (!user) return; // redirected
@@ -157,10 +163,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ═══════════════════════════════════════════════
 
     if (isAdmin) {
-        loadAdminOverview();
-        loadAdminResources();
-        loadAdminUsers();
-        loadAdminRequests();
+        loadAdminOverview().catch(err => console.error('Failed to load admin overview:', err));
+        loadAdminResources().catch(err => console.error('Failed to load admin resources:', err));
+        loadAdminUsers().catch(err => console.error('Failed to load admin users:', err));
+        loadAdminRequests().catch(err => console.error('Failed to load admin requests:', err));
         setupAdminForms();
     }
 
@@ -170,10 +176,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // ═══════════════════════════════════════════════
 
     if (!isAdmin) {
-        loadCustomerOverview();
-        loadBrowseResources();
-        loadMyResources();
-        loadMyRequests();
+        loadCustomerOverview().catch(err => console.error('Failed to load customer overview:', err));
+        loadBrowseResources().catch(err => console.error('Failed to browse resources:', err));
+        loadMyResources().catch(err => console.error('Failed to load my resources:', err));
+        loadMyRequests().catch(err => console.error('Failed to load my requests:', err));
         setupCustomerForms();
     }
 

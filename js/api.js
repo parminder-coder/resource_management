@@ -19,12 +19,12 @@ const api = {
     saveAuth(data) {
         localStorage.setItem('rms_token', data.token);
         localStorage.setItem('rms_user', JSON.stringify({
-            id: data.id,
-            first_name: data.first_name,
-            last_name: data.last_name,
-            email: data.email,
-            role: data.role,
-            department: data.department
+            id: data.user?.id,
+            first_name: data.user?.first_name,
+            last_name: data.user?.last_name,
+            email: data.user?.email,
+            role: data.user?.role,
+            department: data.user?.department
         }));
     },
     // Logout
@@ -41,7 +41,7 @@ const api = {
             window.location.href = 'auth.html';
             return null;
         }
-        if (expectedRole && user.role !== expectedRole) {
+        if (expectedRole && user.role?.toLowerCase() !== expectedRole.toLowerCase()) {
             window.location.href = user.role === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
             return null;
         }
@@ -68,9 +68,11 @@ const api = {
             try { data = JSON.parse(text); } catch { data = { message: text || 'Server error' }; }
             if (!res.ok) {
                 if (res.status === 401) {
+                    console.warn('401 Unauthorized - clearing auth and redirecting');
                     this.logout();
                     return;
                 }
+                // Return error message from backend
                 throw new Error(data.message || 'Something went wrong');
             }
             return data;
@@ -78,6 +80,7 @@ const api = {
             if (err.message === 'Failed to fetch') {
                 throw new Error('Server not reachable. Make sure the backend is running on localhost:5000');
             }
+            // Don't auto-logout on network errors, just throw
             console.error('API Error:', err);
             throw err;
         }

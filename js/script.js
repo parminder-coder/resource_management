@@ -274,15 +274,18 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.textContent = 'Signing in...';
             submitBtn.disabled = true;
 
+            // Clear previous errors
+            document.querySelectorAll('#loginForm .form-error').forEach(el => el.textContent = '');
+
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
             try {
                 const response = await api.login(email, password);
-                
+
                 if (response.success) {
                     api.saveAuth(response.data);
-                    
+
                     // Redirect based on role
                     const userRole = response.data.user.role;
                     window.location.href = userRole === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
@@ -291,7 +294,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitBtn.classList.remove('loading');
                 submitBtn.textContent = originalText;
                 submitBtn.disabled = false;
-                showModal('errorModal', error.message || 'Login failed. Please check your credentials.');
+
+                // Show specific error message
+                const errorMsg = error.message || 'Login failed. Please check your credentials.';
+
+                if (errorMsg.includes('Invalid email or password')) {
+                    // Show inline errors
+                    document.getElementById('login-email-error').textContent = 'Invalid email or password';
+                    document.getElementById('login-password-error').textContent = 'Invalid email or password';
+                    document.getElementById('login-email').classList.add('error');
+                    document.getElementById('login-password').classList.add('error');
+                } else {
+                    showModal('errorModal', errorMsg);
+                }
             }
         });
     }
