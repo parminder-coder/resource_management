@@ -1,31 +1,36 @@
 /* ===================================================
-   ResourceHub - API Helper
+   RMS - API Helper
    =================================================== */
 
-const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5000/api' : '/api';
+// Backend API base URL
+const API_BASE = 'http://localhost:5000/api';
 
 const api = {
     // Get stored token
     getToken() {
-        return localStorage.getItem('rh_token');
+        return localStorage.getItem('rms_token');
     },
     // Get stored user
     getUser() {
-        const u = localStorage.getItem('rh_user');
+        const u = localStorage.getItem('rms_user');
         return u ? JSON.parse(u) : null;
     },
     // Save auth data
     saveAuth(data) {
-        localStorage.setItem('rh_token', data.token);
-        localStorage.setItem('rh_user', JSON.stringify({
-            id: data.id, first_name: data.first_name, last_name: data.last_name,
-            email: data.email, role: data.role, company: data.company
+        localStorage.setItem('rms_token', data.token);
+        localStorage.setItem('rms_user', JSON.stringify({
+            id: data.user?.id,
+            first_name: data.user?.first_name,
+            last_name: data.user?.last_name,
+            email: data.user?.email,
+            role: data.user?.role,
+            department: data.user?.department
         }));
     },
     // Logout
     logout() {
-        localStorage.removeItem('rh_token');
-        localStorage.removeItem('rh_user');
+        localStorage.removeItem('rms_token');
+        localStorage.removeItem('rms_user');
         window.location.href = 'auth.html';
     },
     // Check auth — redirect to auth if not logged in
@@ -36,7 +41,7 @@ const api = {
             window.location.href = 'auth.html';
             return null;
         }
-        if (expectedRole && user.role !== expectedRole) {
+        if (expectedRole && user.role?.toLowerCase() !== expectedRole.toLowerCase()) {
             window.location.href = user.role === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
             return null;
         }
@@ -63,9 +68,11 @@ const api = {
             try { data = JSON.parse(text); } catch { data = { message: text || 'Server error' }; }
             if (!res.ok) {
                 if (res.status === 401) {
+                    console.warn('401 Unauthorized - clearing auth and redirecting');
                     this.logout();
                     return;
                 }
+                // Return error message from backend
                 throw new Error(data.message || 'Something went wrong');
             }
             return data;
@@ -73,6 +80,7 @@ const api = {
             if (err.message === 'Failed to fetch') {
                 throw new Error('Server not reachable. Make sure the backend is running on localhost:5000');
             }
+            // Don't auto-logout on network errors, just throw
             console.error('API Error:', err);
             throw err;
         }
@@ -85,9 +93,9 @@ const api = {
     del(endpoint) { return this.request(endpoint, { method: 'DELETE' }); },
 
     // ─── Auth ───
-    login(email, password, role) { return this.post('/auth/login', { email, password, role }); },
+    login(email, password) { return this.post('/auth/login', { email, password }); },
     register(data) { return this.post('/auth/register', data); },
-    getProfile() { return this.get('/auth/profile'); },
+    getProfile() { return this.get('/auth/me'); },
     updateProfile(data) { return this.put('/auth/profile', data); },
     changePassword(currentPassword, newPassword) { return this.put('/auth/change-password', { currentPassword, newPassword }); },
 
@@ -100,43 +108,46 @@ const api = {
         const q = new URLSearchParams(params).toString();
         return this.get(`/resources/available${q ? '?' + q : ''}`);
     },
+    getMyResources() { return this.get('/resources/my'); },
     createResource(data) { return this.post('/resources', data); },
     updateResource(id, data) { return this.put(`/resources/${id}`, data); },
     deleteResource(id) { return this.del(`/resources/${id}`); },
     getResourceStats() { return this.get('/resources/stats'); },
-    getCostOverview() { return this.get('/resources/cost-overview'); },
 
     // ─── Requests ───
     getRequests(params = {}) {
         const q = new URLSearchParams(params).toString();
         return this.get(`/requests${q ? '?' + q : ''}`);
     },
-    getMyRequests(params = {}) {
-        const q = new URLSearchParams(params).toString();
-        return this.get(`/requests/mine${q ? '?' + q : ''}`);
-    },
+    getSentRequests() { return this.get('/requests/sent'); },
+    getReceivedRequests() { return this.get('/requests/received'); },
     createRequest(data) { return this.post('/requests', data); },
-    approveRequest(id, admin_note) { return this.put(`/requests/${id}/approve`, { admin_note }); },
-    rejectRequest(id, admin_note) { return this.put(`/requests/${id}/reject`, { admin_note }); },
-    cancelRequest(id) { return this.del(`/requests/${id}`); },
+    approveRequest(id, admin_note = '') { return this.put(`/requests/${id}/approve`, { admin_note }); },
+    rejectRequest(id, admin_note = '') { return this.put(`/requests/${id}/reject`, { admin_note }); },
+    returnResource(id) { return this.put(`/requests/${id}/return`, {}); },
+    cancelRequest(id) { return this.del(`/requests/${id}/cancel`); },
     getRequestCounts() { return this.get('/requests/counts'); },
 
-    // ─── Allocations ───
-    getMyAllocations() { return this.get('/allocations/mine'); },
-    getAllAllocations() { return this.get('/allocations'); },
-    returnResource(id) { return this.put(`/allocations/${id}/return`, {}); },
+    // ─── Categories ───
+    getCategories() { return this.get('/categories'); },
 
-    // ─── Dashboard ───
-    getAdminDashboard() { return this.get('/dashboard/admin'); },
-    getCustomerDashboard() { return this.get('/dashboard/customer'); },
+    // ─── Admin ───
+    getAdminStats() { return this.get('/admin/stats'); },
     getUsers(params = {}) {
         const q = new URLSearchParams(params).toString();
-        return this.get(`/dashboard/users${q ? '?' + q : ''}`);
+        return this.get(`/admin/users${q ? '?' + q : ''}`);
     },
-    createUser(data) { return this.post('/dashboard/users', data); },
-    updateUser(id, data) { return this.put(`/dashboard/users/${id}`, data); },
-    deleteUser(id) { return this.del(`/dashboard/users/${id}`); },
-    getActivity() { return this.get('/dashboard/activity'); }
+    verifyUser(id, is_verified) { return this.put(`/admin/users/${id}/verify`, { is_verified }); },
+    blockUser(id, is_blocked) { return this.put(`/admin/users/${id}/block`, { is_blocked }); },
+    deleteUser(id) { return this.del(`/admin/users/${id}`); },
+    getActivity(params = {}) {
+        const q = new URLSearchParams(params).toString();
+        return this.get(`/admin/activity${q ? '?' + q : ''}`);
+    },
+    getAllResources(params = {}) {
+        const q = new URLSearchParams(params).toString();
+        return this.get(`/admin/resources${q ? '?' + q : ''}`);
+    }
 };
 
 // Make available globally

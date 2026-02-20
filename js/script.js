@@ -269,28 +269,45 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isValid) return;
 
             const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Signing in...';
+            submitBtn.disabled = true;
 
-            // Simulate API call
-            await simulateApiCall(1500);
+            // Clear previous errors
+            document.querySelectorAll('#loginForm .form-error').forEach(el => el.textContent = '');
 
-            submitBtn.classList.remove('loading');
-            submitBtn.textContent = 'Sign In';
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
 
-            // Save mock auth data so dashboard auth guard passes
-            const email = loginForm.querySelector('input[name="email"]').value;
-            api.saveAuth({
-                token: 'mock-token-' + Date.now(),
-                id: 1,
-                first_name: email.split('@')[0],
-                last_name: '',
-                email: email,
-                role: 'admin',
-                company: 'ResourceHub'
-            });
+            try {
+                const response = await api.login(email, password);
 
-            window.location.href = 'admin-dashboard.html';
+                if (response.success) {
+                    api.saveAuth(response.data);
+
+                    // Redirect based on role
+                    const userRole = response.data.user.role;
+                    window.location.href = userRole === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
+                }
+            } catch (error) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+
+                // Show specific error message
+                const errorMsg = error.message || 'Login failed. Please check your credentials.';
+
+                if (errorMsg.includes('Invalid email or password')) {
+                    // Show inline errors
+                    document.getElementById('login-email-error').textContent = 'Invalid email or password';
+                    document.getElementById('login-password-error').textContent = 'Invalid email or password';
+                    document.getElementById('login-email').classList.add('error');
+                    document.getElementById('login-password').classList.add('error');
+                } else {
+                    showModal('errorModal', errorMsg);
+                }
+            }
         });
     }
 
@@ -314,52 +331,61 @@ document.addEventListener('DOMContentLoaded', () => {
             const terms = signupForm.querySelector('input[name="terms"]');
             if (terms && !terms.checked) {
                 isValid = false;
-                // Flash the checkbox label
                 const label = terms.closest('.checkbox-label');
                 if (label) {
                     label.style.color = 'var(--danger)';
                     setTimeout(() => { label.style.color = ''; }, 2000);
                 }
+                showModal('errorModal', 'You must agree to the Terms of Service');
+                return;
+            }
+
+            // Check password match
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            if (password !== confirm) {
+                showModal('errorModal', 'Passwords do not match');
+                return;
             }
 
             if (!isValid) return;
 
             const submitBtn = signupForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Creating account...';
+            submitBtn.disabled = true;
 
-            // Simulate API call
-            await simulateApiCall(2000);
+            const registerData = {
+                first_name: document.getElementById('signup-firstname').value,
+                last_name: document.getElementById('signup-lastname').value,
+                email: document.getElementById('signup-email').value,
+                password: password,
+                department: document.getElementById('signup-company').value,
+                year_semester: ''
+            };
 
-            submitBtn.classList.remove('loading');
-            submitBtn.textContent = 'Create Account';
-
-            const firstName = document.getElementById('signup-firstname')?.value || 'there';
-            const lastName = document.getElementById('signup-lastname')?.value || '';
-            const signupEmail = document.getElementById('signup-email')?.value || '';
-            const company = document.getElementById('signup-company')?.value || '';
-
-            // Save mock auth data so dashboard auth guard passes
-            api.saveAuth({
-                token: 'mock-token-' + Date.now(),
-                id: 1,
-                first_name: firstName,
-                last_name: lastName,
-                email: signupEmail,
-                role: 'admin',
-                company: company
-            });
-
-            window.location.href = 'admin-dashboard.html';
+            try {
+                const response = await api.register(registerData);
+                
+                if (response.success) {
+                    api.saveAuth(response.data);
+                    
+                    // Redirect based on role
+                    const userRole = response.data.user.role;
+                    window.location.href = userRole === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
+                }
+            } catch (error) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                showModal('errorModal', error.message || 'Registration failed. Please try again.');
+            }
         });
     }
 
 
     // ─── Helpers ────────────────────────────────────
-    function simulateApiCall(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     function showModal(modalId, message) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
@@ -371,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Expose closeModal globally for onclick handlers
-    window.closeModal = function (modalId) {
+    window.closeModal = function(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('show');
     };
