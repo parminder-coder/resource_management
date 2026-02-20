@@ -823,7 +823,8 @@ img { max-width: 100%; }
 
 .auth-container {
     display: flex;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .auth-branding {
@@ -835,6 +836,7 @@ img { max-width: 100%; }
     padding: 60px 48px;
     position: relative;
     overflow: hidden;
+    height: 100vh;
 }
 
 .auth-branding::before {
@@ -966,12 +968,19 @@ img { max-width: 100%; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: first baseline;
+    justify-content: flex-start;
     padding: 48px;
     position: relative;
     overflow-y: auto;
     max-width: 600px;
     margin: 0 auto;
+    height: 100vh;
+    scrollbar-width: none;            /* Firefox */
+    -ms-overflow-style: none;         /* IE/Edge */
+}
+
+.auth-forms::-webkit-scrollbar {
+    display: none;                    /* Chrome/Safari/Opera */
 }
 
 .back-button {
