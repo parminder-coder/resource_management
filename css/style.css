@@ -966,7 +966,7 @@ img { max-width: 100%; }
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: first baseline;
     padding: 48px;
     position: relative;
     overflow-y: auto;
@@ -1068,7 +1068,11 @@ img { max-width: 100%; }
 }
 
 /* ---------- Form Elements ---------- */
-.auth-form {
+
+#signupForm{
+    padding-top:3rem !important;
+}
+.auth-form {    
     display: flex;
     flex-direction: column;
     gap: 20px;
