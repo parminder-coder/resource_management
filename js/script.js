@@ -269,16 +269,30 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isValid) return;
 
             const submitBtn = loginForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Signing in...';
+            submitBtn.disabled = true;
 
-            // Simulate API call
-            await simulateApiCall(1500);
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
 
-            submitBtn.classList.remove('loading');
-            submitBtn.textContent = 'Sign In';
-
-            showModal('successModal', 'You have successfully signed in. Redirecting to your dashboard...');
+            try {
+                const response = await api.login(email, password);
+                
+                if (response.success) {
+                    api.saveAuth(response.data);
+                    
+                    // Redirect based on role
+                    const userRole = response.data.user.role;
+                    window.location.href = userRole === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
+                }
+            } catch (error) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                showModal('errorModal', error.message || 'Login failed. Please check your credentials.');
+            }
         });
     }
 
@@ -302,37 +316,61 @@ document.addEventListener('DOMContentLoaded', () => {
             const terms = signupForm.querySelector('input[name="terms"]');
             if (terms && !terms.checked) {
                 isValid = false;
-                // Flash the checkbox label
                 const label = terms.closest('.checkbox-label');
                 if (label) {
                     label.style.color = 'var(--danger)';
                     setTimeout(() => { label.style.color = ''; }, 2000);
                 }
+                showModal('errorModal', 'You must agree to the Terms of Service');
+                return;
+            }
+
+            // Check password match
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
+            if (password !== confirm) {
+                showModal('errorModal', 'Passwords do not match');
+                return;
             }
 
             if (!isValid) return;
 
             const submitBtn = signupForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
             submitBtn.classList.add('loading');
             submitBtn.textContent = 'Creating account...';
+            submitBtn.disabled = true;
 
-            // Simulate API call
-            await simulateApiCall(2000);
+            const registerData = {
+                first_name: document.getElementById('signup-firstname').value,
+                last_name: document.getElementById('signup-lastname').value,
+                email: document.getElementById('signup-email').value,
+                password: password,
+                department: document.getElementById('signup-company').value,
+                year_semester: ''
+            };
 
-            submitBtn.classList.remove('loading');
-            submitBtn.textContent = 'Create Account';
-
-            const firstName = document.getElementById('signup-firstname')?.value || 'there';
-            showModal('successModal', `Welcome aboard, ${firstName}! Your account has been created successfully. Check your email to verify your account.`);
+            try {
+                const response = await api.register(registerData);
+                
+                if (response.success) {
+                    api.saveAuth(response.data);
+                    
+                    // Redirect based on role
+                    const userRole = response.data.user.role;
+                    window.location.href = userRole === 'admin' ? 'admin-dashboard.html' : 'customer-dashboard.html';
+                }
+            } catch (error) {
+                submitBtn.classList.remove('loading');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                showModal('errorModal', error.message || 'Registration failed. Please try again.');
+            }
         });
     }
 
 
     // ─── Helpers ────────────────────────────────────
-    function simulateApiCall(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     function showModal(modalId, message) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
@@ -344,7 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Expose closeModal globally for onclick handlers
-    window.closeModal = function (modalId) {
+    window.closeModal = function(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('show');
     };

@@ -1,19 +1,19 @@
 /* ===================================================
-   ResourceHub - Dashboard JavaScript
+   RMS - Dashboard JavaScript
    =================================================== */
 
 document.addEventListener('DOMContentLoaded', () => {
 
     // ─── Auth Guard ─────────────────────────────────
     const isAdmin = window.location.pathname.includes('admin-dashboard');
-    const user = api.requireAuth(isAdmin ? 'admin' : 'customer');
+    const user = api.requireAuth(isAdmin ? 'admin' : 'user');
     if (!user) return; // redirected
 
     // ─── Update User Display ────────────────────────
     const initials = (user.first_name?.[0] || '') + (user.last_name?.[0] || '');
     document.querySelectorAll('.sidebar-avatar, .topbar-avatar').forEach(el => el.textContent = initials.toUpperCase());
     document.querySelectorAll('.sidebar-user-name').forEach(el => el.textContent = `${user.first_name} ${user.last_name}`);
-    document.querySelectorAll('.sidebar-user-role').forEach(el => el.textContent = user.role === 'admin' ? 'Administrator' : 'Customer');
+    document.querySelectorAll('.sidebar-user-role').forEach(el => el.textContent = user.role === 'admin' ? 'Administrator' : 'Member');
     document.querySelectorAll('.topbar-user > span').forEach(el => el.textContent = user.first_name);
 
 
@@ -25,17 +25,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
-            // Save preference
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
         });
 
-        // Restore sidebar state
         if (localStorage.getItem('sidebarCollapsed') === 'true') {
             sidebar.classList.add('collapsed');
         }
     }
 
-    // Mobile menu
     if (mobileMenuBtn) {
         mobileMenuBtn.addEventListener('click', () => {
             sidebar.classList.toggle('mobile-open');
@@ -43,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Overlay for mobile sidebar
     function toggleOverlay(show) {
         let overlay = document.querySelector('.sidebar-overlay');
         if (show) {
@@ -74,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetSection = link.dataset.section;
             switchSection(targetSection);
 
-            // Close mobile menu
             if (sidebar.classList.contains('mobile-open')) {
                 sidebar.classList.remove('mobile-open');
                 toggleOverlay(false);
@@ -83,12 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function switchSection(sectionName) {
-        // Update nav links
         navLinks.forEach(link => {
             link.classList.toggle('active', link.dataset.section === sectionName);
         });
 
-        // Update sections
         sections.forEach(section => {
             section.classList.remove('active');
         });
@@ -96,56 +89,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const target = document.getElementById(`section-${sectionName}`);
         if (target) {
             target.classList.add('active');
-            // Scroll to top
             target.scrollTop = 0;
         }
     }
 
-    // Expose navigateTo globally
-    window.navigateTo = function (sectionName) {
+    window.navigateTo = function(sectionName) {
         switchSection(sectionName);
     };
 
 
-    // ─── Chart Filter Buttons ───────────────────────
-    document.querySelectorAll('.chart-filter').forEach(filter => {
-        const buttons = filter.querySelectorAll('.chart-filter-btn');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                // Animate bars with random data
-                animateBars();
-            });
-        });
-    });
-
-    function animateBars() {
-        const bars = document.querySelectorAll('.bar-chart .bar');
-        bars.forEach(bar => {
-            const newHeight = Math.floor(Math.random() * 70) + 20;
-            bar.style.height = newHeight + '%';
-            bar.dataset.value = newHeight;
-        });
-    }
-
-
-    // ─── Select All Checkboxes ──────────────────────
-    document.querySelectorAll('.select-all').forEach(selectAll => {
-        selectAll.addEventListener('change', () => {
-            const table = selectAll.closest('table');
-            if (table) {
-                const checkboxes = table.querySelectorAll('tbody input[type="checkbox"]');
-                checkboxes.forEach(cb => {
-                    cb.checked = selectAll.checked;
-                });
-            }
-        });
-    });
-
-
-    // ─── Admin Modals ───────────────────────────────
-    window.showAdminModal = function (type) {
+    // ─── Modals ─────────────────────────────────────
+    window.showAdminModal = function(type) {
         const modalMap = {
             'addResource': 'addResourceModal',
             'addUser': 'addUserModal'
@@ -157,14 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.closeAdminModal = function (modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.classList.remove('show');
-    };
-
-
-    // ─── Customer Modals ────────────────────────────
-    window.showCustomerModal = function (type) {
+    window.showCustomerModal = function(type) {
         const modalMap = {
             'requestResource': 'requestResourceModal'
         };
@@ -175,13 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.closeCustomerModal = function (modalId) {
+    window.closeAdminModal = function(modalId) {
         const modal = document.getElementById(modalId);
         if (modal) modal.classList.remove('show');
     };
 
+    window.closeCustomerModal = function(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) modal.classList.remove('show');
+    };
 
-    // ─── Close Modals on Overlay Click ──────────────
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -191,255 +141,155 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // ─── Table Search Filtering ─────────────────────
-    // NOTE: search/filter event listeners are attached below in the API DATA LOADING section
-
-
-    // ─── Button Click Feedback ──────────────────────
-    document.querySelectorAll('.btn-success, .btn-danger').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const card = this.closest('.request-card');
-            if (!card) return;
-
-            const isApprove = this.classList.contains('btn-success');
-            const statusBadge = card.querySelector('.status-badge');
-
-            if (isApprove) {
-                if (statusBadge) {
-                    statusBadge.textContent = 'Approved';
-                    statusBadge.className = 'status-badge available';
-                }
-                this.innerHTML = '<i class="fas fa-check"></i> Approved';
-                this.disabled = true;
-                this.style.opacity = '0.6';
-            } else {
-                if (statusBadge) {
-                    statusBadge.textContent = 'Rejected';
-                    statusBadge.className = 'status-badge rejected';
-                }
-                this.innerHTML = '<i class="fas fa-times"></i> Rejected';
-                this.disabled = true;
-                this.style.opacity = '0.6';
-            }
-
-            // Disable the sibling button
-            const sibling = isApprove
-                ? card.querySelector('.btn-danger')
-                : card.querySelector('.btn-success');
-            if (sibling) {
-                sibling.disabled = true;
-                sibling.style.opacity = '0.4';
-            }
-        });
-    });
-
-
-    // ─── Save Changes Button Feedback ───────────────
-    document.querySelectorAll('.settings-form .btn-primary').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const original = this.textContent;
-            this.textContent = 'Saved!';
-            this.style.background = 'var(--success)';
-            this.style.boxShadow = '0 4px 12px rgba(16,185,129,0.3)';
-
-            setTimeout(() => {
-                this.textContent = original;
-                this.style.background = '';
-                this.style.boxShadow = '';
-            }, 2000);
-        });
-    });
-
-
-    // ─── Action Button Tooltips ─────────────────────
-    document.querySelectorAll('.action-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const action = this.title;
-            if (action === 'Delete') {
-                const row = this.closest('tr');
-                if (row && confirm('Are you sure you want to delete this item?')) {
-                    row.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                    row.style.opacity = '0';
-                    row.style.transform = 'translateX(20px)';
-                    setTimeout(() => row.remove(), 300);
-                }
-            }
-            if (action === 'Return Resource') {
-                const row = this.closest('tr');
-                if (row && confirm('Are you sure you want to return this resource?')) {
-                    const status = row.querySelector('.status-badge');
-                    if (status) {
-                        status.textContent = 'Returned';
-                        status.className = 'status-badge maintenance';
-                    }
-                    this.disabled = true;
-                    this.style.opacity = '0.4';
-                }
-            }
-        });
-    });
-
-
-    // ─── Animate Progress Bars on View ──────────────
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const fills = entry.target.querySelectorAll('.progress-fill, .top-resource-fill');
-                fills.forEach(fill => {
-                    const width = fill.style.width;
-                    fill.style.width = '0%';
-                    requestAnimationFrame(() => {
-                        requestAnimationFrame(() => {
-                            fill.style.width = width;
-                        });
-                    });
-                });
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.2 });
-
-    document.querySelectorAll('.analytics-card').forEach(card => {
-        observer.observe(card);
-    });
-
-
-    // ─── Page Button Active State ───────────────────
-    document.querySelectorAll('.page-btn:not(:disabled)').forEach(btn => {
-        btn.addEventListener('click', function () {
-            const controls = this.closest('.pagination-controls');
-            if (controls) {
-                controls.querySelectorAll('.page-btn').forEach(b => b.classList.remove('active'));
-                if (!this.querySelector('i')) {
-                    this.classList.add('active');
-                }
+    // ─── Logout ─────────────────────────────────────
+    document.querySelectorAll('[data-action="logout"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (confirm('Are you sure you want to logout?')) {
+                api.logout();
             }
         });
     });
 
 
     // ═══════════════════════════════════════════════
-    //  API DATA LOADING
+    //  ADMIN DASHBOARD
     // ═══════════════════════════════════════════════
 
-    function formatDate(d) {
-        if (!d) return '—';
-        const dt = new Date(d);
-        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    }
-
-    function statusClass(s) {
-        const map = { available: 'available', 'in-use': 'in-use', maintenance: 'maintenance', pending: 'pending', approved: 'available', rejected: 'rejected', active: 'in-use', returned: 'maintenance' };
-        return map[s] || 'pending';
-    }
-
-    function categoryClass(c) {
-        const map = { hardware: 'hardware', software: 'software', license: 'license', equipment: 'equipment' };
-        return map[c?.toLowerCase()] || 'hardware';
-    }
-
-    function showToast(msg, type = 'success') {
-        const t = document.createElement('div');
-        t.style.cssText = `position:fixed;top:20px;right:20px;background:${type === 'success' ? 'var(--success)' : 'var(--danger)'};color:#fff;padding:12px 24px;border-radius:8px;z-index:10000;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.15);transition:opacity 0.3s`;
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 3000);
-    }
-
-    // ─── ADMIN: Load Dashboard ──────────────────────
     if (isAdmin) {
         loadAdminOverview();
         loadAdminResources();
         loadAdminUsers();
         loadAdminRequests();
-        loadAdminAnalytics();
         setupAdminForms();
     }
 
-    // ─── CUSTOMER: Load Dashboard ──────────────────
+
+    // ═══════════════════════════════════════════════
+    //  CUSTOMER DASHBOARD
+    // ═══════════════════════════════════════════════
+
     if (!isAdmin) {
         loadCustomerOverview();
         loadBrowseResources();
         loadMyResources();
         loadMyRequests();
-        loadCustomerProfile();
         setupCustomerForms();
     }
 
-    // ═══════════════════ ADMIN LOADERS ═══════════════
+
+    // ═══════════════════ ADMIN FUNCTIONS ═══════════════
 
     async function loadAdminOverview() {
         try {
-            const data = await api.getAdminDashboard();
+            const data = await api.getAdminStats();
+            
+            // Update stat cards
             const statValues = document.querySelectorAll('#section-overview .stat-card-value');
-            if (statValues[0]) statValues[0].textContent = data.resources?.total ?? 0;
-            if (statValues[1]) statValues[1].textContent = data.users?.total ?? 0;
-            if (statValues[2]) statValues[2].textContent = data.requests?.pending ?? 0;
+            if (statValues[0]) statValues[0].textContent = data.data.resources?.total_resources ?? 0;
+            if (statValues[1]) statValues[1].textContent = data.data.users?.total ?? 0;
+            if (statValues[2]) statValues[2].textContent = data.data.requests?.pending ?? 0;
+            
+            const totalRes = data.data.resources?.total_resources || 1;
+            const available = data.data.resources?.available_count || 0;
             if (statValues[3]) {
-                const total = data.resources?.total || 1;
-                const inUse = Number(data.resources?.in_use) || 0;
-                statValues[3].textContent = ((inUse / total) * 100).toFixed(1) + '%';
+                const utilization = ((totalRes - available) / totalRes * 100).toFixed(1);
+                statValues[3].textContent = utilization + '%';
             }
+
             // Recent activity
             const actList = document.querySelector('#section-overview .activity-list');
-            if (actList && data.recentActivity?.length) {
-                actList.innerHTML = data.recentActivity.map(a => `
+            if (actList && data.data.recent_activity?.length) {
+                actList.innerHTML = data.data.recent_activity.map(a => `
                     <div class="activity-item">
                         <div class="activity-icon"><i class="fas fa-circle-dot"></i></div>
                         <div class="activity-info">
-                            <p><strong>${a.user_name || 'System'}</strong> ${a.action.replace(/_/g, ' ')}</p>
+                            <p><strong>${a.first_name || 'System'}</strong> ${a.action.replace(/_/g, ' ')}</p>
                             <span>${formatDate(a.created_at)}</span>
                         </div>
                     </div>
                 `).join('');
             }
-        } catch (e) { console.error('Admin overview error:', e); }
+        } catch (e) {
+            console.error('Admin overview error:', e);
+            showToast('Failed to load dashboard data', 'error');
+        }
     }
 
     async function loadAdminResources(page = 1) {
         try {
             const search = document.getElementById('resourceSearch')?.value || '';
             const category = document.getElementById('categoryFilter')?.value || '';
-            const status = document.getElementById('statusFilter')?.value || '';
-            const data = await api.getResources({ search, category, status, page, limit: 10 });
+            
+            const data = await api.getAllResources({ 
+                search, 
+                category,
+                page, 
+                limit: 10 
+            });
+            
             const tbody = document.querySelector('#section-resources .data-table tbody');
             if (!tbody) return;
-            tbody.innerHTML = data.resources.map(r => `
+            
+            if (data.data.resources.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--gray);">No resources found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.data.resources.map(r => `
                 <tr data-id="${r.id}">
                     <td><input type="checkbox"></td>
-                    <td>${r.name}</td>
-                    <td><span class="category-badge ${categoryClass(r.category)}">${r.category}</span></td>
-                    <td><span class="status-badge ${statusClass(r.status)}">${r.status}</span></td>
-                    <td>${r.assigned_to_name || '—'}</td>
-                    <td>$${Number(r.cost_per_unit || 0).toLocaleString()}</td>
-                    <td>${formatDate(r.updated_at)}</td>
                     <td>
-                        <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
-                        <button class="action-btn delete" title="Delete" onclick="deleteResource(${r.id})"><i class="fas fa-trash"></i></button>
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="topbar-avatar" style="width:32px;height:32px;font-size:12px;">${(r.owner_first_name?.[0] || '') + (r.owner_last_name?.[0] || '')}</div>
+                            <div>
+                                <strong>${r.title}</strong><br>
+                                <small style="color:var(--gray)">by ${r.owner_first_name} ${r.owner_last_name}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="category-badge ${r.category_slug || 'books'}">${r.category_name}</span></td>
+                    <td><span class="status-badge ${r.availability}">${r.availability}</span></td>
+                    <td><span class="status-badge ${r.is_verified ? 'available' : 'pending'}">${r.is_verified ? 'Verified' : 'Pending'}</span></td>
+                    <td>${formatDate(r.created_at)}</td>
+                    <td>
+                        <button class="action-btn ${r.is_verified ? 'reject' : 'approve'}" title="${r.is_verified ? 'Unverify' : 'Verify'}" onclick="toggleVerifyResource(${r.id}, ${!r.is_verified})">
+                            <i class="fas fa-${r.is_verified ? 'times' : 'check'}"></i>
+                        </button>
+                        <button class="action-btn delete" title="Delete" onclick="deleteResource(${r.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
             `).join('');
-            // Pagination info
+            
             const info = document.querySelector('#section-resources .pagination-info');
-            if (info) info.textContent = `Showing ${(page - 1) * 10 + 1}-${Math.min(page * 10, data.total)} of ${data.total}`;
-        } catch (e) { console.error('Load resources error:', e); }
+            if (info) info.textContent = `Showing ${(page - 1) * 10 + 1}-${Math.min(page * 10, data.data.total)} of ${data.data.total}`;
+        } catch (e) {
+            console.error('Load resources error:', e);
+        }
     }
 
-    // Hook up resource search & filters
-    const resourceSearchInput = document.getElementById('resourceSearch');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const statusFilter = document.getElementById('statusFilter');
-    if (resourceSearchInput) resourceSearchInput.addEventListener('input', () => loadAdminResources());
-    if (categoryFilter) categoryFilter.addEventListener('change', () => loadAdminResources());
-    if (statusFilter) statusFilter.addEventListener('change', () => loadAdminResources());
+    window.toggleVerifyResource = async function(id, is_verified) {
+        try {
+            // Use the resources verify endpoint
+            await api.put(`/resources/${id}/verify`, { is_verified });
+            showToast(is_verified ? 'Resource verified' : 'Resource unverified');
+            loadAdminResources();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+    };
 
-    window.deleteResource = async function (id) {
+    window.deleteResource = async function(id) {
         if (!confirm('Are you sure you want to delete this resource?')) return;
         try {
             await api.deleteResource(id);
             showToast('Resource deleted');
             loadAdminResources();
-        } catch (e) { showToast(e.message, 'error'); }
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     };
 
     async function loadAdminUsers(page = 1) {
@@ -447,35 +297,63 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await api.getUsers({ page, limit: 10 });
             const tbody = document.querySelector('#section-users .data-table tbody');
             if (!tbody) return;
-            tbody.innerHTML = data.users.map(u => `
+            
+            if (data.data.users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--gray);">No users found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.data.users.map(u => `
                 <tr data-id="${u.id}">
                     <td><input type="checkbox"></td>
                     <td>
                         <div style="display:flex;align-items:center;gap:10px;">
                             <div class="topbar-avatar" style="width:32px;height:32px;font-size:12px;">${(u.first_name?.[0] || '') + (u.last_name?.[0] || '')}</div>
-                            <div><strong>${u.first_name} ${u.last_name}</strong><br><small style="color:var(--gray)">${u.email}</small></div>
+                            <div>
+                                <strong>${u.first_name} ${u.last_name}</strong><br>
+                                <small style="color:var(--gray)">${u.email}</small>
+                            </div>
                         </div>
                     </td>
                     <td><span class="role-badge ${u.role}">${u.role}</span></td>
-                    <td>${u.company || '—'}</td>
-                    <td><span class="status-badge ${u.status === 'active' ? 'available' : 'maintenance'}">${u.status}</span></td>
+                    <td>${u.department || '—'}</td>
+                    <td><span class="status-badge ${u.is_verified ? 'available' : 'pending'}">${u.is_verified ? 'Verified' : 'Pending'}</span></td>
                     <td>${formatDate(u.created_at)}</td>
                     <td>
-                        <button class="action-btn edit" title="Edit"><i class="fas fa-pen"></i></button>
-                        <button class="action-btn delete" title="Delete" onclick="deleteUser(${u.id})"><i class="fas fa-trash"></i></button>
+                        ${u.role !== 'admin' ? `
+                            <button class="action-btn ${u.is_verified ? 'reject' : 'approve'}" title="${u.is_verified ? 'Unverify' : 'Verify'}" onclick="toggleVerifyUser(${u.id}, ${!u.is_verified})">
+                                <i class="fas fa-${u.is_verified ? 'times' : 'check'}"></i>
+                            </button>
+                            <button class="action-btn ${u.is_blocked ? 'approve' : 'reject'}" title="${u.is_blocked ? 'Unblock' : 'Block'}" onclick="toggleBlockUser(${u.id}, ${!u.is_blocked})">
+                                <i class="fas fa-${u.is_blocked ? 'check' : 'ban'}"></i>
+                            </button>
+                        ` : '<span style="color:var(--gray);font-size:12px;">Admin</span>'}
                     </td>
                 </tr>
             `).join('');
-        } catch (e) { console.error('Load users error:', e); }
+        } catch (e) {
+            console.error('Load users error:', e);
+        }
     }
 
-    window.deleteUser = async function (id) {
-        if (!confirm('Delete this user?')) return;
+    window.toggleVerifyUser = async function(id, is_verified) {
         try {
-            await api.deleteUser(id);
-            showToast('User deleted');
+            await api.verifyUser(id, is_verified);
+            showToast(is_verified ? 'User verified' : 'User unverified');
             loadAdminUsers();
-        } catch (e) { showToast(e.message, 'error'); }
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+    };
+
+    window.toggleBlockUser = async function(id, is_blocked) {
+        try {
+            await api.blockUser(id, is_blocked);
+            showToast(is_blocked ? 'User blocked' : 'User unblocked');
+            loadAdminUsers();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     };
 
     async function loadAdminRequests() {
@@ -484,36 +362,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const counts = await api.getRequestCounts();
 
             const statNums = document.querySelectorAll('#section-requests .request-stat-number');
-            if (statNums[0]) statNums[0].textContent = counts.pending ?? 0;
-            if (statNums[1]) statNums[1].textContent = counts.approved ?? 0;
-            if (statNums[2]) statNums[2].textContent = counts.rejected ?? 0;
-            if (statNums[3]) statNums[3].textContent = counts.total ?? 0;
+            if (statNums[0]) statNums[0].textContent = counts.data?.pending ?? 0;
+            if (statNums[1]) statNums[1].textContent = counts.data?.approved ?? 0;
+            if (statNums[2]) statNums[2].textContent = counts.data?.rejected ?? 0;
+            if (statNums[3]) statNums[3].textContent = counts.data?.total ?? 0;
 
             const list = document.querySelector('#section-requests .requests-list');
             if (!list) return;
-            if (data.requests.length === 0) {
+            
+            if (data.data.requests.length === 0) {
                 list.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">No requests found.</p>';
                 return;
             }
-            list.innerHTML = data.requests.map(r => `
+            
+            list.innerHTML = data.data.requests.map(r => `
                 <div class="request-card" data-id="${r.id}">
                     <div class="request-card-header">
                         <div class="request-card-user">
-                            <div class="topbar-avatar" style="width:36px;height:36px;font-size:12px;">${(r.user_name || '??').split(' ').map(n => n[0]).join('')}</div>
+                            <div class="topbar-avatar" style="width:36px;height:36px;font-size:12px;">${(r.requester_first_name || '?').charAt(0)}${(r.requester_last_name || '').charAt(0)}</div>
                             <div>
-                                <strong>${r.user_name}</strong>
-                                <span>${r.user_email}</span>
+                                <strong>${r.requester_first_name} ${r.requester_last_name}</strong>
+                                <span>${r.requester_email}</span>
                             </div>
                         </div>
-                        <span class="status-badge ${statusClass(r.status)}">${r.status}</span>
+                        <span class="status-badge ${r.status}">${r.status}</span>
                     </div>
                     <div class="request-card-body">
-                        <h4><i class="fas fa-cube"></i> ${r.resource_name}</h4>
-                        <span class="category-badge ${categoryClass(r.resource_category)}">${r.resource_category}</span>
+                        <h4><i class="fas fa-cube"></i> ${r.resource_title}</h4>
                     </div>
-                    <div class="request-reason">${r.reason}</div>
+                    <div class="request-reason">${r.message || 'No message provided'}</div>
+                    ${r.duration ? `<div style="font-size:12px;color:var(--gray);margin-top:8px;"><i class="far fa-clock"></i> Duration: ${r.duration}</div>` : ''}
                     <div class="request-card-footer">
-                        <span><i class="far fa-clock"></i> ${formatDate(r.created_at)}</span>
+                        <span><i class="far fa-clock"></i> ${formatDate(r.requested_at)}</span>
                         <div class="request-actions">
                             ${r.status === 'pending' ? `
                                 <button class="btn btn-success btn-sm" onclick="approveReq(${r.id})"><i class="fas fa-check"></i> Approve</button>
@@ -523,346 +403,312 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `).join('');
-        } catch (e) { console.error('Load requests error:', e); }
+        } catch (e) {
+            console.error('Load requests error:', e);
+        }
     }
 
-    window.approveReq = async function (id) {
+    window.approveReq = async function(id) {
         try {
-            await api.approveRequest(id, '');
+            await api.approveRequest(id);
             showToast('Request approved');
             loadAdminRequests();
             loadAdminOverview();
-        } catch (e) { showToast(e.message, 'error'); }
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     };
 
-    window.rejectReq = async function (id) {
+    window.rejectReq = async function(id) {
         try {
-            await api.rejectRequest(id, '');
+            await api.rejectRequest(id);
             showToast('Request rejected');
             loadAdminRequests();
-        } catch (e) { showToast(e.message, 'error'); }
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
     };
 
-    async function loadAdminAnalytics() {
-        try {
-            const stats = await api.getResourceStats();
-            const cost = await api.getCostOverview();
-
-            // Resource utilization progress
-            const progList = document.querySelector('#section-analytics .progress-list');
-            if (progList && stats.categories?.length) {
-                progList.innerHTML = stats.categories.map(c => {
-                    const pct = stats.total > 0 ? Math.round((c.count / stats.total) * 100) : 0;
-                    return `
-                        <div class="progress-item">
-                            <div class="progress-label"><span>${c.category}</span><span>${pct}%</span></div>
-                            <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            // Cost overview
-            const costMetrics = document.querySelector('#section-analytics .cost-metrics');
-            const totalCostEl = document.querySelector('#section-analytics .total-cost strong');
-            if (costMetrics && cost.length) {
-                let totalCost = 0;
-                costMetrics.innerHTML = cost.map(c => {
-                    totalCost += Number(c.total_cost || 0);
-                    return `<div class="cost-item"><div class="cost-info"><span>${c.category}</span><strong>$${Number(c.total_cost).toLocaleString()}</strong></div></div>`;
-                }).join('');
-                if (totalCostEl) totalCostEl.textContent = '$' + totalCost.toLocaleString();
-            }
-        } catch (e) { console.error('Analytics error:', e); }
-    }
-
     function setupAdminForms() {
-        // Add Resource
-        const addResBtn = document.getElementById('addResourceBtn');
-        if (addResBtn) {
-            addResBtn.addEventListener('click', async () => {
-                const name = document.getElementById('resName').value.trim();
-                const category = document.getElementById('resCategory').value;
-                const status = document.getElementById('resStatus').value;
-                const description = document.getElementById('resDescription').value.trim();
-                const total_qty = parseInt(document.getElementById('resQty').value) || 1;
-                const cost = parseFloat(document.getElementById('resCost').value) || 0;
-                if (!name) return showToast('Resource name is required', 'error');
-                try {
-                    await api.createResource({ name, category, description, cost, total_qty, status });
-                    showToast('Resource added');
-                    closeAdminModal('addResourceModal');
-                    document.getElementById('addResourceForm').reset();
-                    loadAdminResources();
-                    loadAdminOverview();
-                } catch (e) { showToast(e.message, 'error'); }
-            });
-        }
+        // Add Resource Form
+        const addResourceForm = document.getElementById('addResourceForm');
+        if (addResourceForm) {
+            addResourceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Get category ID from name (we'll use slug for now and map it)
+                const categoryMap = {
+                    'hardware': 2,    // Electronics
+                    'software': 2,    // Electronics
+                    'license': 10,    // Other
+                    'equipment': 9    // Lab Equipment
+                };
+                
+                const formData = {
+                    category_id: categoryMap[document.getElementById('resCategory').value] || 10,
+                    title: document.getElementById('resName').value.trim(),
+                    description: document.getElementById('resDescription').value.trim(),
+                    location: 'Admin Resource',
+                    contact_info: 'Contact Admin'
+                };
 
-        // Add User
-        const createUserBtn = document.getElementById('createUserBtn');
-        if (createUserBtn) {
-            createUserBtn.addEventListener('click', async () => {
-                const first_name = document.getElementById('userFirstName').value.trim();
-                const last_name = document.getElementById('userLastName').value.trim();
-                const email = document.getElementById('userEmail').value.trim();
-                const password = document.getElementById('userPassword').value;
-                const role = document.getElementById('userRole').value;
-                const company = document.getElementById('userCompany').value.trim();
-                if (!first_name || !last_name || !email || !password) return showToast('All fields required', 'error');
                 try {
-                    await api.createUser({ first_name, last_name, email, password, role, company });
-                    showToast('User created');
-                    closeAdminModal('addUserModal');
-                    document.getElementById('addUserForm').reset();
-                    loadAdminUsers();
-                    loadAdminOverview();
-                } catch (e) { showToast(e.message, 'error'); }
+                    const response = await api.createResource(formData);
+                    showToast('Resource added successfully');
+                    closeAdminModal('addResourceModal');
+                    addResourceForm.reset();
+                    loadAdminResources();
+                } catch (e) {
+                    showToast(e.message, 'error');
+                }
             });
         }
     }
 
 
-    // ═══════════════════ CUSTOMER LOADERS ═══════════
+    // ═══════════════════ CUSTOMER FUNCTIONS ═══════════════
 
     async function loadCustomerOverview() {
         try {
-            const data = await api.getCustomerDashboard();
+            const stats = await api.getResourceStats();
+            const counts = await api.getRequestCounts();
+            
             const statValues = document.querySelectorAll('#section-overview .stat-card-value');
-            if (statValues[0]) statValues[0].textContent = data.activeResources ?? 0;
-            if (statValues[1]) statValues[1].textContent = data.requests?.pending ?? 0;
-            if (statValues[2]) statValues[2].textContent = data.requests?.approved ?? 0;
-            if (statValues[3]) statValues[3].textContent = data.nearestReturn ? formatDate(data.nearestReturn) : '—';
-
-            // Active resources list
-            const resList = document.querySelector('#section-overview .resource-list-compact');
-            if (resList && data.allocations?.length) {
-                resList.innerHTML = data.allocations.map(a => `
-                    <div class="resource-list-item">
-                        <div class="resource-item-info">
-                            <strong>${a.resource_name}</strong>
-                            <span>${a.resource_category}</span>
-                        </div>
-                        <span class="status-badge ${statusClass(a.status)}">${a.status}</span>
-                    </div>
-                `).join('');
-            } else if (resList) {
-                resList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No active resources</p>';
-            }
-        } catch (e) { console.error('Customer overview error:', e); }
+            if (statValues[0]) statValues[0].textContent = stats.data?.total_resources ?? 0;
+            if (statValues[1]) statValues[1].textContent = counts.data?.pending ?? 0;
+            if (statValues[2]) statValues[2].textContent = counts.data?.approved ?? 0;
+            if (statValues[3]) statValues[3].textContent = counts.data?.returned ?? 0;
+        } catch (e) {
+            console.error('Customer overview error:', e);
+        }
     }
 
-    async function loadBrowseResources() {
+    async function loadBrowseResources(page = 1) {
         try {
             const search = document.getElementById('browseSearch')?.value || '';
-            const data = await api.getAvailableResources({ search });
-            const resources = data.resources || data || [];
-            const grid = document.querySelector('.browse-grid');
+            const category = document.getElementById('browseCategory')?.value || '';
+            
+            const data = await api.getAvailableResources({ search, category, page, limit: 12 });
+            const grid = document.querySelector('#section-browse .resources-grid');
             if (!grid) return;
-            if (!resources.length) {
+            
+            if (data.data.resources.length === 0) {
                 grid.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;grid-column:1/-1;">No resources available at the moment.</p>';
                 return;
             }
-            grid.innerHTML = resources.map(r => `
-                <div class="browse-card">
-                    <div class="browse-card-header">
-                        <span class="category-badge ${categoryClass(r.category)}">${r.category}</span>
-                        <span class="status-badge available">Available</span>
+            
+            grid.innerHTML = data.data.resources.map(r => `
+                <div class="resource-card" data-id="${r.id}">
+                    <div class="resource-card-header">
+                        <span class="category-badge ${r.category_slug || 'hardware'}">${r.category_name}</span>
+                        <span class="status-badge ${r.availability}">${r.availability}</span>
                     </div>
-                    <div class="browse-card-info">
-                        <h4>${r.name}</h4>
-                        <p>${r.description || 'No description available'}</p>
+                    <div class="resource-card-body">
+                        <h4>${r.title}</h4>
+                        <p>${r.description || 'No description provided'}</p>
+                        <div class="resource-meta">
+                            <span><i class="fas fa-user"></i> ${r.owner_first_name} ${r.owner_last_name}</span>
+                            <span><i class="fas fa-map-marker-alt"></i> ${r.location || 'N/A'}</span>
+                        </div>
                     </div>
-                    <div class="browse-card-meta">
-                        <span><i class="fas fa-cubes"></i> ${r.available_qty} in stock</span>
-                        <span><i class="fas fa-dollar-sign"></i> ${Number(r.cost_per_unit || 0).toLocaleString()}/unit</span>
+                    <div class="resource-card-footer">
+                        <span style="font-size:12px;color:var(--gray);">${formatDate(r.created_at)}</span>
+                        <button class="btn btn-primary btn-sm" onclick="requestResource(${r.id})">
+                            <i class="fas fa-paper-plane"></i> Request
+                        </button>
                     </div>
-                    <button class="btn btn-primary btn-sm" onclick="openRequestModal(${r.id}, '${r.name.replace(/'/g, "\\'")}')">
-                        <i class="fas fa-paper-plane"></i> Request
-                    </button>
                 </div>
             `).join('');
-        } catch (e) { console.error('Browse resources error:', e); }
+        } catch (e) {
+            console.error('Load browse resources error:', e);
+        }
     }
-
-    // Hook browse search
-    const browseSearchInput = document.getElementById('browseSearch');
-    if (browseSearchInput) browseSearchInput.addEventListener('input', () => loadBrowseResources());
-
-    window.openRequestModal = function (resourceId, resourceName) {
-        document.getElementById('reqResourceId').value = resourceId;
-        document.getElementById('reqResourceName').value = resourceName;
-        showCustomerModal('requestResource');
-    };
 
     async function loadMyResources() {
         try {
-            const allocations = await api.getMyAllocations();
+            const data = await api.getMyResources();
             const tbody = document.querySelector('#section-my-resources .data-table tbody');
             if (!tbody) return;
-            if (allocations.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:40px;">No resources assigned to you</td></tr>';
+            
+            if (data.data.resources.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--gray);">You haven\'t listed any resources yet.</td></tr>';
                 return;
             }
-            tbody.innerHTML = allocations.map(a => `
-                <tr data-id="${a.id}">
-                    <td>${a.resource_name}</td>
-                    <td><span class="category-badge ${categoryClass(a.resource_category)}">${a.resource_category}</span></td>
-                    <td>${formatDate(a.assigned_date)}</td>
-                    <td>${a.return_due ? formatDate(a.return_due) : '—'}</td>
-                    <td><span class="status-badge ${statusClass(a.status)}">${a.status}</span></td>
+            
+            tbody.innerHTML = data.data.resources.map(r => `
+                <tr data-id="${r.id}">
                     <td>
-                        ${a.status === 'active' ? `<button class="action-btn return" title="Return Resource" onclick="returnAlloc(${a.id})"><i class="fas fa-undo"></i></button>` : '—'}
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <div class="topbar-avatar" style="width:32px;height:32px;font-size:12px;">${(r.owner_first_name?.[0] || '') + (r.owner_last_name?.[0] || '')}</div>
+                            <div>
+                                <strong>${r.title}</strong><br>
+                                <small style="color:var(--gray)">${r.category_name}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="status-badge ${r.availability}">${r.availability}</span></td>
+                    <td><span class="status-badge ${r.is_verified ? 'available' : 'pending'}">${r.is_verified ? 'Verified' : 'Pending'}</span></td>
+                    <td>${r.location || 'N/A'}</td>
+                    <td>${formatDate(r.created_at)}</td>
+                    <td>
+                        <button class="action-btn edit" title="Edit" onclick="editResource(${r.id})"><i class="fas fa-pen"></i></button>
+                        <button class="action-btn delete" title="Delete" onclick="deleteResource(${r.id})"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `).join('');
-        } catch (e) { console.error('My resources error:', e); }
+        } catch (e) {
+            console.error('Load my resources error:', e);
+        }
     }
-
-    window.returnAlloc = async function (id) {
-        if (!confirm('Return this resource?')) return;
-        try {
-            await api.returnResource(id);
-            showToast('Resource returned');
-            loadMyResources();
-            loadCustomerOverview();
-        } catch (e) { showToast(e.message, 'error'); }
-    };
 
     async function loadMyRequests() {
         try {
-            const data = await api.getMyRequests({ limit: 50 });
-            const counts = await api.getRequestCounts();
-
-            const statNums = document.querySelectorAll('#section-my-requests .request-stat-number');
-            if (statNums[0]) statNums[0].textContent = counts.pending ?? 0;
-            if (statNums[1]) statNums[1].textContent = counts.approved ?? 0;
-            if (statNums[2]) statNums[2].textContent = counts.rejected ?? 0;
-            if (statNums[3]) statNums[3].textContent = counts.total ?? 0;
-
+            const sent = await api.getSentRequests();
+            const received = await api.getReceivedRequests();
+            
+            // Update request counts
+            const sentCount = document.querySelector('#section-my-requests .stat-card-value');
+            if (sentCount) sentCount.textContent = sent.data?.total ?? 0;
+            
+            // Show received requests for resource owners
             const list = document.querySelector('#section-my-requests .requests-list');
-            if (!list) return;
-            if (data.requests.length === 0) {
-                list.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">You haven\'t made any requests yet.</p>';
-                return;
+            if (list && received.data.requests.length > 0) {
+                list.innerHTML = received.data.requests.map(r => `
+                    <div class="request-card" data-id="${r.id}">
+                        <div class="request-card-header">
+                            <div class="request-card-user">
+                                <div class="topbar-avatar" style="width:36px;height:36px;font-size:12px;">${(r.requester_first_name || '?').charAt(0)}${(r.requester_last_name || '').charAt(0)}</div>
+                                <div>
+                                    <strong>${r.requester_first_name} ${r.requester_last_name}</strong>
+                                    <span>${r.requester_email}</span>
+                                </div>
+                            </div>
+                            <span class="status-badge ${r.status}">${r.status}</span>
+                        </div>
+                        <div class="request-card-body">
+                            <h4><i class="fas fa-cube"></i> ${r.resource_title}</h4>
+                        </div>
+                        <div class="request-reason">${r.message || 'No message provided'}</div>
+                        <div class="request-card-footer">
+                            <span><i class="far fa-clock"></i> ${formatDate(r.requested_at)}</span>
+                            <div class="request-actions">
+                                ${r.status === 'pending' ? `
+                                    <button class="btn btn-success btn-sm" onclick="approveReq(${r.id})"><i class="fas fa-check"></i> Approve</button>
+                                    <button class="btn btn-danger btn-sm" onclick="rejectReq(${r.id})"><i class="fas fa-times"></i> Reject</button>
+                                ` : r.status === 'approved' ? `
+                                    <button class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i> Approved</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
             }
-            list.innerHTML = data.requests.map(r => `
-                <div class="request-card" data-id="${r.id}">
-                    <div class="request-card-header">
-                        <div class="request-card-user">
-                            <span class="request-id-badge">#REQ-${String(r.id).padStart(3, '0')}</span>
-                            <div><strong>${r.resource_name}</strong><span>${r.resource_category}</span></div>
-                        </div>
-                        <span class="status-badge ${statusClass(r.status)}">${r.status}</span>
-                    </div>
-                    <div class="request-reason">${r.reason}</div>
-                    ${r.admin_note ? `<div class="request-admin-note"><i class="fas fa-comment"></i> Admin: ${r.admin_note}</div>` : ''}
-                    <div class="request-card-footer">
-                        <span><i class="far fa-clock"></i> ${formatDate(r.created_at)}</span>
-                        <div class="request-actions">
-                            ${r.status === 'pending' ? `<button class="btn btn-danger btn-sm" onclick="cancelReq(${r.id})"><i class="fas fa-times"></i> Cancel</button>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        } catch (e) { console.error('My requests error:', e); }
+        } catch (e) {
+            console.error('Load my requests error:', e);
+        }
     }
 
-    window.cancelReq = async function (id) {
-        if (!confirm('Cancel this request?')) return;
-        try {
-            await api.cancelRequest(id);
-            showToast('Request cancelled');
-            loadMyRequests();
-            loadCustomerOverview();
-        } catch (e) { showToast(e.message, 'error'); }
+    window.requestResource = function(id) {
+        // Store resource ID for the form
+        localStorage.setItem('request_resource_id', id);
+        showCustomerModal('requestResource');
     };
 
-    async function loadCustomerProfile() {
-        try {
-            const profile = await api.getProfile();
-            // Profile card
-            const avatarLg = document.querySelector('#section-profile .profile-avatar-large');
-            if (avatarLg) avatarLg.textContent = ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase();
-            const nameEl = document.querySelector('#section-profile .profile-card-header h3');
-            if (nameEl) nameEl.textContent = `${profile.first_name} ${profile.last_name}`;
-            const roleEl = document.querySelector('#section-profile .profile-card-header p');
-            if (roleEl) roleEl.textContent = profile.company || profile.role;
+    function setupCustomerForms() {
+        // Request Resource Form
+        const requestForm = document.getElementById('requestResourceForm');
+        if (requestForm) {
+            requestForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const resourceId = localStorage.getItem('request_resource_id');
+                if (!resourceId) {
+                    showToast('Please select a resource', 'error');
+                    return;
+                }
+                
+                const formData = {
+                    resource_id: parseInt(resourceId),
+                    message: document.getElementById('reqReason').value.trim(),
+                    duration: document.getElementById('reqNeededBy').value || 'Not specified'
+                };
 
-            // Profile form fields
-            const inputs = document.querySelectorAll('#section-profile .settings-form .settings-input');
-            if (inputs[0]) inputs[0].value = profile.first_name || '';
-            if (inputs[1]) inputs[1].value = profile.last_name || '';
-            if (inputs[2]) inputs[2].value = profile.email || '';
-            if (inputs[3]) inputs[3].value = profile.company || '';
-        } catch (e) { console.error('Profile error:', e); }
+                try {
+                    await api.createRequest(formData);
+                    showToast('Request sent successfully');
+                    closeCustomerModal('requestResourceModal');
+                    requestForm.reset();
+                    loadMyRequests();
+                } catch (e) {
+                    showToast(e.message, 'error');
+                }
+            });
+        }
+
+        // Add Resource Form (for customers to list items)
+        const addResourceForm = document.getElementById('addResourceForm');
+        if (addResourceForm) {
+            addResourceForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    category_id: parseInt(document.getElementById('resCategory').value),
+                    title: document.getElementById('resName').value.trim(),
+                    description: document.getElementById('resDescription').value.trim(),
+                    condition: document.getElementById('resCondition').value,
+                    location: document.getElementById('resLocation').value.trim(),
+                    contact_info: document.getElementById('resContact').value.trim()
+                };
+
+                try {
+                    await api.createResource(formData);
+                    showToast('Resource listed successfully! It will appear after admin verification.');
+                    closeCustomerModal('addResourceModal');
+                    addResourceForm.reset();
+                    loadMyResources();
+                } catch (e) {
+                    showToast(e.message, 'error');
+                }
+            });
+        }
     }
 
-    function setupCustomerForms() {
-        // Submit resource request
-        const submitReqBtn = document.getElementById('submitRequestBtn');
-        if (submitReqBtn) {
-            submitReqBtn.addEventListener('click', async () => {
-                const resource_id = document.getElementById('reqResourceId').value;
-                const reason = document.getElementById('reqReason').value.trim();
-                const priority = document.getElementById('reqPriority').value;
-                const needed_by = document.getElementById('reqNeededBy').value || null;
-                if (!resource_id || !reason) return showToast('Please fill required fields', 'error');
-                try {
-                    await api.createRequest({ resource_id: +resource_id, reason, priority, needed_by });
-                    showToast('Request submitted');
-                    closeCustomerModal('requestResourceModal');
-                    document.getElementById('requestResourceForm').reset();
-                    loadMyRequests();
-                    loadCustomerOverview();
-                    loadBrowseResources();
-                } catch (e) { showToast(e.message, 'error'); }
-            });
-        }
+    // Search/filter handlers
+    const browseSearch = document.getElementById('browseSearch');
+    const browseCategory = document.getElementById('browseCategory');
+    if (browseSearch) browseSearch.addEventListener('input', () => loadBrowseResources());
+    if (browseCategory) browseCategory.addEventListener('change', () => loadBrowseResources());
 
-        // Save profile
-        const profileSaveBtn = document.querySelector('#section-profile .settings-form .btn-primary');
-        if (profileSaveBtn) {
-            profileSaveBtn.addEventListener('click', async function () {
-                const inputs = document.querySelectorAll('#section-profile .settings-form .settings-input');
-                const first_name = inputs[0]?.value.trim();
-                const last_name = inputs[1]?.value.trim();
-                const email = inputs[2]?.value.trim();
-                const company = inputs[3]?.value.trim();
-                try {
-                    await api.updateProfile({ first_name, last_name, email, company });
-                    // Update stored user
-                    const u = api.getUser();
-                    u.first_name = first_name; u.last_name = last_name; u.email = email; u.company = company;
-                    localStorage.setItem('rh_user', JSON.stringify(u));
-                    // Update display
-                    const initials = (first_name?.[0] || '') + (last_name?.[0] || '');
-                    document.querySelectorAll('.sidebar-avatar, .topbar-avatar').forEach(el => el.textContent = initials.toUpperCase());
-                    document.querySelectorAll('.sidebar-user-name').forEach(el => el.textContent = `${first_name} ${last_name}`);
-                    document.querySelectorAll('.topbar-user > span').forEach(el => el.textContent = first_name);
-                    showToast('Profile updated');
-                } catch (e) { showToast(e.message, 'error'); }
-            });
-        }
 
-        // Change password
-        const pwdBtn = document.querySelector('#section-profile .settings-section:last-child .btn-primary');
-        if (pwdBtn) {
-            pwdBtn.addEventListener('click', async function () {
-                const pwdInputs = document.querySelectorAll('#section-profile .settings-section:last-child .settings-input');
-                const currentPassword = pwdInputs[0]?.value;
-                const newPassword = pwdInputs[1]?.value;
-                const confirmPassword = pwdInputs[2]?.value;
-                if (!currentPassword || !newPassword) return showToast('Fill all password fields', 'error');
-                if (newPassword !== confirmPassword) return showToast('Passwords do not match', 'error');
-                if (newPassword.length < 6) return showToast('Password must be at least 6 characters', 'error');
-                try {
-                    await api.changePassword(currentPassword, newPassword);
-                    showToast('Password changed');
-                    pwdInputs.forEach(i => i.value = '');
-                } catch (e) { showToast(e.message, 'error'); }
-            });
-        }
+    // ═══════════════════ UTILITIES ═══════════════════
+
+    function formatDate(d) {
+        if (!d) return '—';
+        const dt = new Date(d);
+        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function showToast(msg, type = 'success') {
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position:fixed;
+            top:20px;
+            right:20px;
+            background:${type === 'success' ? 'var(--success)' : 'var(--danger)'};
+            color:#fff;
+            padding:12px 24px;
+            border-radius:8px;
+            z-index:10000;
+            font-size:14px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.15);
+            transition:opacity 0.3s;
+        `;
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => { 
+            toast.style.opacity = '0'; 
+            setTimeout(() => toast.remove(), 300); 
+        }, 3000);
     }
 
 });

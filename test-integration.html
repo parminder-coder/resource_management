@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RMS Integration Test</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background: #d1fae5; border-color: #10b981; }
+        .error { background: #fee2e2; border-color: #ef4444; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🧪 RMS Frontend-Backend Integration Test</h1>
+    
+    <div class="test">
+        <h3>Test 1: API Health Check</h3>
+        <button onclick="testHealth()">Run Test</button>
+        <div id="health-result"></div>
+    </div>
+
+    <div class="test">
+        <h3>Test 2: Login</h3>
+        <button onclick="testLogin()">Login as Admin</button>
+        <button onclick="testLoginUser()">Login as User</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test">
+        <h3>Test 3: Get Categories</h3>
+        <button onclick="testCategories()">Get Categories</button>
+        <div id="categories-result"></div>
+    </div>
+
+    <div class="test">
+        <h3>Test 4: Get Resources</h3>
+        <button onclick="testResources()">Get Resources</button>
+        <div id="resources-result"></div>
+    </div>
+
+    <div class="test">
+        <h3>Test 5: Create Resource (requires login)</h3>
+        <button onclick="testCreateResource()">Create Test Resource</button>
+        <div id="create-result"></div>
+    </div>
+
+    <div class="test">
+        <h3>Test 6: Get Admin Stats (requires admin)</h3>
+        <button onclick="testAdminStats()">Get Admin Stats</button>
+        <div id="admin-result"></div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        function showResult(id, data, isError = false) {
+            const el = document.getElementById(id);
+            el.innerHTML = `<pre class="${isError ? 'error' : 'success'}">${JSON.stringify(data, null, 2)}</pre>`;
+        }
+
+        async function testHealth() {
+            try {
+                const res = await fetch('http://localhost:5000');
+                const data = await res.json();
+                showResult('health-result', data);
+            } catch (e) {
+                showResult('health-result', { error: e.message }, true);
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const data = await api.login('admin@rms.local', 'admin123');
+                api.saveAuth(data.data);
+                showResult('login-result', { success: true, user: data.data.user, token: 'Saved to localStorage' });
+            } catch (e) {
+                showResult('login-result', { error: e.message }, true);
+            }
+        }
+
+        async function testLoginUser() {
+            try {
+                const data = await api.login('john@rms.local', 'user123');
+                api.saveAuth(data.data);
+                showResult('login-result', { success: true, user: data.data.user, token: 'Saved to localStorage' });
+            } catch (e) {
+                showResult('login-result', { error: e.message }, true);
+            }
+        }
+
+        async function testCategories() {
+            try {
+                const data = await api.getCategories();
+                showResult('categories-result', data);
+            } catch (e) {
+                showResult('categories-result', { error: e.message }, true);
+            }
+        }
+
+        async function testResources() {
+            try {
+                const data = await api.getResources();
+                showResult('resources-result', data);
+            } catch (e) {
+                showResult('resources-result', { error: e.message }, true);
+            }
+        }
+
+        async function testCreateResource() {
+            try {
+                const data = await api.createResource({
+                    category_id: 1,
+                    title: 'Test Resource from Integration Test',
+                    description: 'This is a test resource created via the integration test page',
+                    location: 'Test Lab',
+                    contact_info: 'test@rms.local'
+                });
+                showResult('create-result', data);
+            } catch (e) {
+                showResult('create-result', { error: e.message }, true);
+            }
+        }
+
+        async function testAdminStats() {
+            try {
+                const data = await api.getAdminStats();
+                showResult('admin-result', data);
+            } catch (e) {
+                showResult('admin-result', { error: e.message }, true);
+            }
+        }
+    </script>
+</body>
+</html>
