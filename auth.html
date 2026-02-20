@@ -224,7 +224,6 @@
             </div>
             <h3>Welcome to ResourceHub!</h3>
             <p id="successMessage"></p>
-            <button class="btn btn-primary" onclick="location.href='index.html'">Return to Home</button>
         </div>
     </div>
 
@@ -240,6 +239,21 @@
             <h3>Something Went Wrong</h3>
             <p id="errorMessage"></p>
             <button class="btn btn-secondary" onclick="closeModal('errorModal')">Try Again</button>
+        </div>
+    </div>
+
+    <!-- Coming Soon Modal -->
+    <div class="modal" id="comingSoonModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('comingSoonModal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-icon" style="color: var(--primary);">
+                <i class="fas fa-rocket"></i>
+            </div>
+            <h3>Coming Soon!</h3>
+            <p>This feature is coming soon. Stay tuned for updates!</p>
+            <button class="btn btn-primary" onclick="closeModal('comingSoonModal')">Got it</button>
         </div>
     </div>
 

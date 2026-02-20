@@ -188,9 +188,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email';
             return '';
         },
-        password(value) {
+        password(value, input) {
             if (!value) return 'Password is required';
-            if (value.length < 8) return 'Password must be at least 8 characters';
+            if (input && !input.closest('#loginForm') && value.length < 8) return 'Password must be at least 8 characters';
             return '';
         },
         firstname(value) {
@@ -223,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!validator) return true;
 
-        const error = validator(value);
+        const error = validator(value, input);
 
         if (errorSpan) {
             errorSpan.textContent = error;
@@ -355,6 +355,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (e.target === modal) {
                 modal.classList.remove('show');
             }
+        });
+    });
+
+
+    // ─── Social Login Buttons ────────────────────────
+    document.querySelectorAll('.social-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const modal = document.getElementById('comingSoonModal');
+            if (modal) modal.classList.add('show');
         });
     });
 
