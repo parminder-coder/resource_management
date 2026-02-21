@@ -744,10 +744,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    window.requestResource = function(id) {
-        // Store resource ID for the form
-        localStorage.setItem('request_resource_id', id);
-        showCustomerModal('requestResource');
+    window.requestResource = async function(id) {
+        try {
+            // Store resource ID for the form
+            localStorage.setItem('request_resource_id', id);
+            
+            // Fetch resource details to show name in modal
+            const response = await api.get(`resources/${id}`);
+            const foundResource = response.data?.resource;
+            
+            if (foundResource) {
+                const resourceNameEl = document.getElementById('reqResourceName');
+                if (resourceNameEl) {
+                    resourceNameEl.value = `${foundResource.title} (${foundResource.category_name})`;
+                }
+            }
+            
+            showCustomerModal('requestResource');
+        } catch (e) {
+            console.error('Error loading resource details:', e);
+            // Still show modal even if we can't fetch details
+            const resourceNameEl = document.getElementById('reqResourceName');
+            if (resourceNameEl) {
+                resourceNameEl.value = `Resource ID: ${id}`;
+            }
+            showCustomerModal('requestResource');
+        }
     };
 
     function setupCustomerForms() {
@@ -756,27 +778,38 @@ document.addEventListener('DOMContentLoaded', () => {
         if (requestForm) {
             requestForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 const resourceId = localStorage.getItem('request_resource_id');
                 if (!resourceId) {
                     showToast('Please select a resource', 'error');
                     return;
                 }
+
+                const reason = document.getElementById('reqReason').value.trim();
+                const neededBy = document.getElementById('reqNeededBy').value;
                 
+                if (!reason) {
+                    showToast('Please provide a reason for your request', 'error');
+                    return;
+                }
+
                 const formData = {
                     resource_id: parseInt(resourceId),
-                    message: document.getElementById('reqReason').value.trim(),
-                    duration: document.getElementById('reqNeededBy').value || 'Not specified'
+                    message: reason,
+                    duration: neededBy ? `Needed by ${new Date(neededBy).toLocaleDateString()}` : 'Not specified'
                 };
 
                 try {
                     await api.createRequest(formData);
-                    showToast('Request sent successfully');
+                    showToast('Request sent successfully! The resource owner will review your request.');
                     closeCustomerModal('requestResourceModal');
                     requestForm.reset();
+                    // Reload requests to show the new one
                     loadMyRequests();
+                    // Also update overview
+                    loadCustomerOverview();
                 } catch (e) {
-                    showToast(e.message, 'error');
+                    showToast(e.message || 'Failed to send request', 'error');
                 }
             });
         }
