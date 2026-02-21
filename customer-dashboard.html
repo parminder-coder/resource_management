@@ -59,9 +59,9 @@
 
         <div class="sidebar-footer">
             <div class="sidebar-user">
-                <div class="sidebar-avatar">ED</div>
+                <div class="sidebar-avatar">-</div>
                 <div class="sidebar-user-info">
-                    <p class="sidebar-user-name">Ishank Kaushik</p>
+                    <p class="sidebar-user-name">Loading...</p>
                     <p class="sidebar-user-role">Customer</p>
                 </div>
             </div>
@@ -92,8 +92,8 @@
                     <span class="badge-dot"></span>
                 </button>
                 <div class="topbar-user">
-                    <div class="topbar-avatar">ED</div>
-                    <span>Ishank</span>
+                    <div class="topbar-avatar">-</div>
+                    <span>Loading</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
             </div>
@@ -120,9 +120,9 @@
                         <i class="fas fa-box-open"></i>
                     </div>
                     <div class="stat-card-info">
-                        <p class="stat-card-label">Active Resources</p>
-                        <h3 class="stat-card-value" id="statActiveResources">0</h3>
-                        <p class="stat-card-change">Currently assigned</p>
+                        <p class="stat-card-label">My Resources</p>
+                        <h3 class="stat-card-value" id="statMyResources">0</h3>
+                        <p class="stat-card-change">Resources you've listed</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -147,12 +147,12 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-card-icon" style="background: rgba(14,165,233,0.1); color: var(--secondary);">
-                        <i class="fas fa-calendar-check"></i>
+                        <i class="fas fa-users"></i>
                     </div>
                     <div class="stat-card-info">
-                        <p class="stat-card-label">Next Return Due</p>
-                        <h3 class="stat-card-value" id="statNextReturn">—</h3>
-                        <p class="stat-card-change">Check your resources</p>
+                        <p class="stat-card-label">Total Resources</p>
+                        <h3 class="stat-card-value" id="statTotalResources">0</h3>
+                        <p class="stat-card-change">Platform wide</p>
                     </div>
                 </div>
             </div>
@@ -162,7 +162,7 @@
                 <!-- My Active Resources -->
                 <div class="dashboard-card wide">
                     <div class="card-header">
-                        <h3>My Active Resources</h3>
+                        <h3>My Listed Resources</h3>
                         <a href="#" class="view-all-link" onclick="navigateTo('my-resources'); return false;">View All</a>
                     </div>
                     <div class="resource-list-compact" id="overviewActiveResources">
@@ -223,7 +223,12 @@
             <div class="section-header">
                 <div>
                     <h1>My Resources</h1>
-                    <p>All resources currently assigned to you.</p>
+                    <p>Resources you've listed for sharing.</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn btn-primary btn-sm" onclick="showCustomerModal('addResource')">
+                        <i class="fas fa-plus"></i> Add Resource
+                    </button>
                 </div>
             </div>
 
@@ -233,8 +238,8 @@
                         <tr>
                             <th>Resource</th>
                             <th>Category</th>
-                            <th>Assigned Date</th>
-                            <th>Return Due</th>
+                            <th>Condition</th>
+                            <th>Location</th>
                             <th>Status</th>
                             <th>Actions</th>
                         </tr>
@@ -265,19 +270,19 @@
             <!-- Request Status Overview -->
             <div class="request-stats">
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--accent);" id="statPendingRequests">0</div>
+                    <div class="request-stat-number" style="color:var(--accent);" id="reqStatPending">0</div>
                     <div class="request-stat-label">Pending</div>
                 </div>
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--success);" id="statApprovedRequests">0</div>
+                    <div class="request-stat-number" style="color:var(--success);" id="reqStatApproved">0</div>
                     <div class="request-stat-label">Approved</div>
                 </div>
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--danger);" id="statRejectedRequests">0</div>
+                    <div class="request-stat-number" style="color:var(--danger);" id="reqStatRejected">0</div>
                     <div class="request-stat-label">Rejected</div>
                 </div>
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--primary);" id="statTotalRequests">0</div>
+                    <div class="request-stat-number" style="color:var(--primary);" id="reqStatTotal">0</div>
                     <div class="request-stat-label">Total</div>
                 </div>
             </div>
@@ -300,22 +305,22 @@
                 <!-- Profile Card -->
                 <div class="profile-card">
                     <div class="profile-card-header">
-                        <div class="profile-avatar-large">ED</div>
-                        <h3>Ishank Kaushik</h3>
-                        <p>Design Team &bull; Customer</p>
-                        <span class="status-badge available">Active</span>
+                        <div class="profile-avatar-large" id="profileAvatar">-</div>
+                        <h3 id="profileName">Loading...</h3>
+                        <p id="profileDepartment">-</p>
+                        <span class="status-badge available" id="profileStatus">Active</span>
                     </div>
                     <div class="profile-card-stats">
                         <div class="profile-stat">
-                            <strong>8</strong>
+                            <strong id="profileResourcesCount">0</strong>
                             <span>Resources</span>
                         </div>
                         <div class="profile-stat">
-                            <strong>17</strong>
+                            <strong id="profileRequestsCount">0</strong>
                             <span>Requests</span>
                         </div>
                         <div class="profile-stat">
-                            <strong>Feb 2026</strong>
+                            <strong id="profileJoined">-</strong>
                             <span>Joined</span>
                         </div>
                     </div>
@@ -325,51 +330,51 @@
                 <div class="settings-grid" style="flex:1;">
                     <div class="settings-card">
                         <h3><i class="fas fa-user-edit"></i> Personal Information</h3>
-                        <form class="settings-form">
+                        <form class="settings-form" id="profileForm">
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>First Name</label>
-                                    <input type="text" value="Ishank" class="settings-input">
+                                    <input type="text" id="profileFirstName" class="settings-input">
                                 </div>
                                 <div class="form-group">
                                     <label>Last Name</label>
-                                    <input type="text" value="Davis" class="settings-input">
+                                    <input type="text" id="profileLastName" class="settings-input">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
-                                <input type="email" value="ishankkoshik@gmail.com" class="settings-input">
+                                <input type="email" id="profileEmail" class="settings-input" disabled>
                             </div>
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Department</label>
-                                    <input type="text" value="Design" class="settings-input" disabled>
+                                    <input type="text" id="profileDepartmentInput" class="settings-input">
                                 </div>
                                 <div class="form-group">
                                     <label>Phone</label>
-                                    <input type="tel" value="+1 (555) 987-6543" class="settings-input">
+                                    <input type="tel" id="profilePhone" class="settings-input" placeholder="Optional">
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-primary btn-sm">Save Changes</button>
+                            <button type="submit" class="btn btn-primary btn-sm">Save Changes</button>
                         </form>
                     </div>
 
                     <div class="settings-card">
                         <h3><i class="fas fa-shield-alt"></i> Security</h3>
-                        <form class="settings-form">
+                        <form class="settings-form" id="passwordForm">
                             <div class="form-group">
                                 <label>Current Password</label>
-                                <input type="password" placeholder="Enter current password" class="settings-input">
+                                <input type="password" id="currentPassword" class="settings-input" required>
                             </div>
                             <div class="form-group">
                                 <label>New Password</label>
-                                <input type="password" placeholder="Enter new password" class="settings-input">
+                                <input type="password" id="newPassword" class="settings-input" required>
                             </div>
                             <div class="form-group">
                                 <label>Confirm New Password</label>
-                                <input type="password" placeholder="Confirm new password" class="settings-input">
+                                <input type="password" id="confirmPassword" class="settings-input" required>
                             </div>
-                            <button type="button" class="btn btn-primary btn-sm">Update Password</button>
+                            <button type="submit" class="btn btn-primary btn-sm">Update Password</button>
                         </form>
                     </div>
                 </div>
@@ -377,6 +382,58 @@
         </section>
 
     </main>
+
+    <!-- Add Resource Modal (for customers) -->
+    <div class="modal" id="addResourceModal">
+        <div class="modal-content modal-lg">
+            <button class="modal-close" onclick="closeCustomerModal('addResourceModal')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h3>Add New Resource</h3>
+            <p style="color:var(--gray); margin-bottom: 24px;">List a resource to share with others.</p>
+            <form class="settings-form" id="customerAddResourceForm">
+                <div class="form-group">
+                    <label>Resource Name</label>
+                    <input type="text" id="customerResName" placeholder="e.g., MacBook Pro 16&quot;" class="settings-input" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="customerResCategory" class="settings-input" required>
+                            <!-- Categories loaded dynamically from API -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Condition</label>
+                        <select id="customerResCondition" class="settings-input">
+                            <option value="new">New</option>
+                            <option value="good" selected>Good</option>
+                            <option value="fair">Fair</option>
+                            <option value="poor">Poor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="customerResLocation" class="settings-input" placeholder="e.g., Room 101, Lab 3">
+                    </div>
+                    <div class="form-group">
+                        <label>Contact Info</label>
+                        <input type="text" id="customerResContact" class="settings-input" placeholder="Email or phone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="customerResDescription" class="settings-input" rows="3" placeholder="Resource description..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost btn-sm" onclick="closeCustomerModal('addResourceModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm" form="customerAddResourceForm">Add Resource</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Request Resource Modal -->
     <div class="modal" id="requestResourceModal">
@@ -397,15 +454,6 @@
                     <textarea id="reqReason" class="settings-input" rows="4" placeholder="Explain why you need this resource..." required></textarea>
                 </div>
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Priority</label>
-                        <select id="reqPriority" class="settings-input">
-                            <option value="low">Low</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">High</option>
-                            <option value="urgent">Urgent</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label>Needed By</label>
                         <input type="date" id="reqNeededBy" class="settings-input">

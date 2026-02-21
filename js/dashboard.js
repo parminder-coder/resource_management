@@ -96,12 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target) {
             target.classList.add('active');
             target.scrollTop = 0;
+            
+            // Load profile data when switching to profile section
+            if (sectionName === 'profile' && !isAdmin) {
+                loadProfile();
+            }
         }
     }
 
     window.navigateTo = function(sectionName) {
         switchSection(sectionName);
     };
+
+    // Expose loadProfile globally for potential external calls
+    window.loadProfile = loadProfile;
 
 
     // ─── Modals ─────────────────────────────────────
@@ -128,12 +136,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.showCustomerModal = function(type) {
         const modalMap = {
-            'requestResource': 'requestResourceModal'
+            'requestResource': 'requestResourceModal',
+            'addResource': 'addResourceModal'
         };
         const modalId = modalMap[type];
         if (modalId) {
             const modal = document.getElementById(modalId);
-            if (modal) modal.classList.add('show');
+            if (modal) {
+                // Ensure categories are loaded for add resource modal
+                if (type === 'addResource') {
+                    const resCategory = document.getElementById('customerResCategory');
+                    if (resCategory && resCategory.options.length <= 1) {
+                        loadCategories();
+                    }
+                }
+                modal.classList.add('show');
+            }
         }
     };
 
@@ -528,33 +546,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 welcomeEl.textContent = user.first_name || 'there';
             }
 
-            // Load stats
-            const stats = await api.getResourceStats();
+            // Load my resources count
+            const myResources = await api.getMyResources();
+            const myResourcesCount = myResources.data?.resources?.length || 0;
+            
+            // Load request counts
             const counts = await api.getRequestCounts();
+            
+            // Load total platform resources
+            const stats = await api.getResourceStats();
 
-            const statValues = document.querySelectorAll('#section-overview .stat-card-value');
-            if (statValues[0]) statValues[0].textContent = stats.data?.total_resources ?? 0;
-            if (statValues[1]) statValues[1].textContent = counts.data?.pending ?? 0;
-            if (statValues[2]) statValues[2].textContent = counts.data?.approved ?? 0;
-            if (statValues[3]) statValues[3].textContent = '—';
+            // Update stat cards
+            const myResourcesEl = document.getElementById('statMyResources');
+            const pendingEl = document.getElementById('statPendingRequests');
+            const approvedEl = document.getElementById('statApprovedRequests');
+            const totalEl = document.getElementById('statTotalResources');
 
-            // Load active resources for overview
+            if (myResourcesEl) myResourcesEl.textContent = myResourcesCount;
+            if (pendingEl) pendingEl.textContent = counts.data?.pending ?? 0;
+            if (approvedEl) approvedEl.textContent = counts.data?.approved ?? 0;
+            if (totalEl) totalEl.textContent = stats.data?.total_resources ?? 0;
+
+            // Load active resources for overview (user's listed resources)
             const resourcesList = document.getElementById('overviewActiveResources');
             if (resourcesList) {
-                const myResources = await api.getMyResources();
                 if (myResources.data?.resources?.length > 0) {
                     resourcesList.innerHTML = myResources.data.resources.slice(0, 4).map(r => `
                         <div class="resource-list-item">
                             <div class="resource-item-icon ${r.category_slug || 'hardware'}"><i class="fas fa-${r.category_slug === 'software' ? 'palette' : r.category_slug === 'license' ? 'key' : 'laptop'}"></i></div>
                             <div class="resource-item-info">
                                 <strong>${r.title}</strong>
-                                <span>${r.category_name} • Assigned ${formatDate(r.created_at)}</span>
+                                <span>${r.category_name} • ${r.condition}</span>
                             </div>
                             <span class="status-badge ${r.availability}">${r.availability}</span>
                         </div>
                     `).join('');
                 } else {
-                    resourcesList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No active resources</p>';
+                    resourcesList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">You haven\'t listed any resources yet.</p>';
                 }
             }
 
@@ -567,7 +595,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="notification-item ${r.status === 'pending' ? 'unread' : ''}">
                             <div class="notification-dot"></div>
                             <div class="notification-content">
-                                <p>Your request for <strong>${r.resource_title}</strong> is ${r.status}.</p>
+                                <p>Your request for <strong>${r.resource_title}</strong> is <strong>${r.status}</strong>.</p>
                                 <span>${formatDate(r.requested_at)}</span>
                             </div>
                         </div>
@@ -591,12 +619,18 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await api.getCategories();
             const categories = response.data?.categories || [];
-            
+
             const browseCategory = document.getElementById('browseCategory');
             if (browseCategory && categories.length > 0) {
                 // Keep the "All Categories" option
-                browseCategory.innerHTML = '<option value="">All Categories</option>' + 
+                browseCategory.innerHTML = '<option value="">All Categories</option>' +
                     categories.map(cat => `<option value="${cat.slug}">${cat.name}</option>`).join('');
+            }
+            
+            // Also update customer add resource modal categories
+            const customerResCategory = document.getElementById('customerResCategory');
+            if (customerResCategory && categories.length > 0) {
+                customerResCategory.innerHTML = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
             }
         } catch (e) {
             console.error('Failed to load categories:', e);
@@ -698,43 +732,89 @@ document.addEventListener('DOMContentLoaded', () => {
             if (rejectedEl) rejectedEl.textContent = counts.data?.rejected ?? 0;
             if (totalEl) totalEl.textContent = counts.data?.total ?? 0;
 
-            // Show received requests for resource owners (when others request your resources)
             const list = document.querySelector('#section-my-requests .requests-list');
-            if (list) {
-                if (received.data.requests.length === 0) {
-                    list.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">No requests for your resources yet.</p>';
-                } else {
-                    list.innerHTML = received.data.requests.map(r => `
-                        <div class="request-card" data-id="${r.id}">
-                            <div class="request-card-header">
-                                <div class="request-card-user">
-                                    <div class="topbar-avatar" style="width:36px;height:36px;font-size:12px;">${(r.requester_first_name || '?').charAt(0)}${(r.requester_last_name || '').charAt(0)}</div>
-                                    <div>
-                                        <strong>${r.requester_first_name} ${r.requester_last_name}</strong>
-                                        <span>${r.requester_email}</span>
-                                    </div>
+            if (!list) return;
+
+            // Combine sent and received requests, showing sent requests first
+            // For regular users, show their sent requests (requests they made to others)
+            // For resource owners, also show received requests (requests others made for their resources)
+            
+            let allRequests = [];
+            
+            // Add sent requests (requests this user made)
+            if (sent.data?.requests?.length > 0) {
+                allRequests = allRequests.concat(sent.data.requests.map(r => ({
+                    ...r,
+                    _type: 'sent'
+                })));
+            }
+            
+            // Add received requests (requests others made for this user's resources)
+            if (received.data?.requests?.length > 0) {
+                allRequests = allRequests.concat(received.data.requests.map(r => ({
+                    ...r,
+                    _type: 'received'
+                })));
+            }
+
+            if (allRequests.length === 0) {
+                list.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">No requests found. Browse resources and make a request, or wait for others to request your resources.</p>';
+                return;
+            }
+
+            // Sort by date (newest first)
+            allRequests.sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at));
+
+            list.innerHTML = allRequests.map(r => {
+                const isSent = r._type === 'sent';
+                const otherPersonName = isSent 
+                    ? `${r.owner_first_name || 'Resource'} ${r.owner_last_name || 'Owner'}`
+                    : `${r.requester_first_name || 'Requester'} ${r.requester_last_name || ''}`;
+                const otherPersonEmail = isSent ? r.owner_email || '' : r.requester_email || '';
+                
+                return `
+                    <div class="request-card" data-id="${r.id}">
+                        <div class="request-card-header">
+                            <div class="request-card-user">
+                                <div class="topbar-avatar" style="width:36px;height:36px;font-size:12px;">${(otherPersonName || '?').charAt(0)}</div>
+                                <div>
+                                    <strong>${isSent ? 'Requested from' : 'Request from'} ${otherPersonName}</strong>
+                                    <span>${otherPersonEmail}</span>
                                 </div>
-                                <span class="status-badge ${r.status}">${r.status}</span>
                             </div>
-                            <div class="request-card-body">
-                                <h4><i class="fas fa-cube"></i> ${r.resource_title}</h4>
-                            </div>
-                            <div class="request-reason">${r.message || 'No message provided'}</div>
-                            <div class="request-card-footer">
-                                <span><i class="far fa-clock"></i> ${formatDate(r.requested_at)}</span>
-                                <div class="request-actions">
+                            <span class="status-badge ${r.status}">${r.status}</span>
+                        </div>
+                        <div class="request-card-body">
+                            <h4><i class="fas fa-cube"></i> ${r.resource_title}</h4>
+                        </div>
+                        <div class="request-reason">${r.message || 'No message provided'}</div>
+                        <div class="request-card-footer">
+                            <span><i class="far fa-clock"></i> ${formatDate(r.requested_at)}</span>
+                            <div class="request-actions">
+                                ${isSent ? `
+                                    ${r.status === 'pending' ? `
+                                        <button class="btn btn-ghost btn-sm" onclick="cancelRequest(${r.id})"><i class="fas fa-times"></i> Cancel Request</button>
+                                    ` : r.status === 'approved' ? `
+                                        <button class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i> Approved</button>
+                                        <button class="btn btn-success btn-sm" onclick="returnResource(${r.id})"><i class="fas fa-undo"></i> Return</button>
+                                    ` : r.status === 'rejected' ? `
+                                        <span style="color:var(--danger);font-size:12px;">${r.admin_note || 'Request rejected'}</span>
+                                    ` : r.status === 'returned' ? `
+                                        <span style="color:var(--success);font-size:12px;"><i class="fas fa-check"></i> Returned</span>
+                                    ` : ''}
+                                ` : `
                                     ${r.status === 'pending' ? `
                                         <button class="btn btn-success btn-sm" onclick="approveReq(${r.id})"><i class="fas fa-check"></i> Approve</button>
                                         <button class="btn btn-danger btn-sm" onclick="rejectReq(${r.id})"><i class="fas fa-times"></i> Reject</button>
                                     ` : r.status === 'approved' ? `
                                         <button class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i> Approved</button>
                                     ` : ''}
-                                </div>
+                                `}
                             </div>
                         </div>
-                    `).join('');
-                }
-            }
+                    </div>
+                `;
+            }).join('');
         } catch (e) {
             console.error('Load my requests error:', e);
             const list = document.querySelector('#section-my-requests .requests-list');
@@ -769,6 +849,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 resourceNameEl.value = `Resource ID: ${id}`;
             }
             showCustomerModal('requestResource');
+        }
+    };
+
+    // Cancel a pending request (customer)
+    window.cancelRequest = async function(id) {
+        if (!confirm('Are you sure you want to cancel this request?')) return;
+        try {
+            await api.cancelRequest(id);
+            showToast('Request cancelled');
+            loadMyRequests();
+            loadCustomerOverview();
+        } catch (e) {
+            showToast(e.message, 'error');
+        }
+    };
+
+    // Return a resource (customer)
+    window.returnResource = async function(id) {
+        if (!confirm('Have you returned this resource? This will mark the request as completed.')) return;
+        try {
+            await api.returnResource(id);
+            showToast('Resource marked as returned. Thank you!');
+            loadMyRequests();
+            loadCustomerOverview();
+        } catch (e) {
+            showToast(e.message, 'error');
         }
     };
 
@@ -815,18 +921,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Add Resource Form (for customers to list items)
-        const addResourceForm = document.getElementById('addResourceForm');
+        const addResourceForm = document.getElementById('customerAddResourceForm');
         if (addResourceForm) {
             addResourceForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
+
                 const formData = {
-                    category_id: parseInt(document.getElementById('resCategory').value),
-                    title: document.getElementById('resName').value.trim(),
-                    description: document.getElementById('resDescription').value.trim(),
-                    condition: document.getElementById('resCondition').value,
-                    location: document.getElementById('resLocation').value.trim(),
-                    contact_info: document.getElementById('resContact').value.trim()
+                    category_id: parseInt(document.getElementById('customerResCategory').value),
+                    title: document.getElementById('customerResName').value.trim(),
+                    description: document.getElementById('customerResDescription').value.trim(),
+                    condition: document.getElementById('customerResCondition').value,
+                    location: document.getElementById('customerResLocation').value.trim(),
+                    contact_info: document.getElementById('customerResContact').value.trim()
                 };
 
                 try {
@@ -835,10 +941,122 @@ document.addEventListener('DOMContentLoaded', () => {
                     closeCustomerModal('addResourceModal');
                     addResourceForm.reset();
                     loadMyResources();
+                    loadCustomerOverview();
                 } catch (e) {
                     showToast(e.message, 'error');
                 }
             });
+        }
+
+        // Profile Form
+        const profileForm = document.getElementById('profileForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = {
+                    first_name: document.getElementById('profileFirstName').value.trim(),
+                    last_name: document.getElementById('profileLastName').value.trim(),
+                    department: document.getElementById('profileDepartmentInput').value.trim(),
+                    phone: document.getElementById('profilePhone').value.trim()
+                };
+
+                try {
+                    await api.updateProfile(formData);
+                    showToast('Profile updated successfully');
+                    // Update user data in localStorage
+                    const currentUser = api.getUser();
+                    localStorage.setItem('rms_user', JSON.stringify({
+                        ...currentUser,
+                        first_name: formData.first_name,
+                        last_name: formData.last_name,
+                        department: formData.department
+                    }));
+                    // Reload profile
+                    loadProfile();
+                } catch (e) {
+                    showToast(e.message, 'error');
+                }
+            });
+        }
+
+        // Password Change Form
+        const passwordForm = document.getElementById('passwordForm');
+        if (passwordForm) {
+            passwordForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    showToast('New passwords do not match', 'error');
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    showToast('Password must be at least 6 characters', 'error');
+                    return;
+                }
+
+                try {
+                    await api.changePassword(currentPassword, newPassword);
+                    showToast('Password changed successfully');
+                    passwordForm.reset();
+                } catch (e) {
+                    showToast(e.message, 'error');
+                }
+            });
+        }
+    }
+
+    // Load Profile Section
+    async function loadProfile() {
+        try {
+            // Get current user data
+            const currentUser = api.getUser();
+            
+            // Update profile card
+            const initials = (currentUser.first_name?.[0] || '') + (currentUser.last_name?.[0] || '');
+            const avatarEl = document.getElementById('profileAvatar');
+            const nameEl = document.getElementById('profileName');
+            const deptEl = document.getElementById('profileDepartment');
+            
+            if (avatarEl) avatarEl.textContent = initials.toUpperCase();
+            if (nameEl) nameEl.textContent = `${currentUser.first_name} ${currentUser.last_name}`;
+            if (deptEl) deptEl.textContent = currentUser.department || 'Department not set';
+
+            // Update profile form
+            document.getElementById('profileFirstName').value = currentUser.first_name || '';
+            document.getElementById('profileLastName').value = currentUser.last_name || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profileDepartmentInput').value = currentUser.department || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+
+            // Load counts
+            const myResources = await api.getMyResources();
+            const counts = await api.getRequestCounts();
+            
+            document.getElementById('profileResourcesCount').textContent = myResources.data?.resources?.length || 0;
+            document.getElementById('profileRequestsCount').textContent = counts.data?.total || 0;
+            document.getElementById('profileJoined').textContent = formatDate(currentUser.created_at || Date.now());
+
+            // Update sidebar and topbar
+            document.querySelectorAll('.sidebar-avatar, .topbar-avatar').forEach(el => {
+                if (el) el.textContent = initials.toUpperCase();
+            });
+            document.querySelectorAll('.sidebar-user-name').forEach(el => {
+                if (el) el.textContent = `${currentUser.first_name} ${currentUser.last_name}`;
+            });
+            document.querySelectorAll('.sidebar-user-role').forEach(el => {
+                if (el) el.textContent = currentUser.role === 'admin' ? 'Administrator' : 'Member';
+            });
+            document.querySelectorAll('.topbar-user > span').forEach(el => {
+                if (el) el.textContent = currentUser.first_name;
+            });
+        } catch (e) {
+            console.error('Load profile error:', e);
         }
     }
 
