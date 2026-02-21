@@ -225,25 +225,41 @@ class Request {
     /**
      * Get request counts (for dashboard)
      */
-    static async getCounts(userId = null) {
+    static async getCounts(userId = null, asRequester = false) {
         if (userId) {
-            // For specific user (as owner)
-            const sql = `
-                SELECT 
-                    COUNT(*) as total,
-                    SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
-                    SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
-                    SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected,
-                    SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) as returned
-                FROM requests
-                WHERE owner_id = ?
-            `;
-            const [rows] = await pool.query(sql, [userId]);
-            return rows[0];
+            if (asRequester) {
+                // Count requests made BY this user (as requester)
+                const sql = `
+                    SELECT
+                        COUNT(*) as total,
+                        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                        SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                        SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected,
+                        SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) as returned
+                    FROM requests
+                    WHERE requester_id = ?
+                `;
+                const [rows] = await pool.query(sql, [userId]);
+                return rows[0];
+            } else {
+                // Count requests FOR this user's resources (as owner)
+                const sql = `
+                    SELECT
+                        COUNT(*) as total,
+                        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+                        SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,
+                        SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected,
+                        SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) as returned
+                    FROM requests
+                    WHERE owner_id = ?
+                `;
+                const [rows] = await pool.query(sql, [userId]);
+                return rows[0];
+            }
         } else {
             // For admin (all requests)
             const sql = `
-                SELECT 
+                SELECT
                     COUNT(*) as total,
                     SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
                     SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved,

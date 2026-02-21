@@ -547,14 +547,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Load my resources count
-            const myResources = await api.getMyResources();
-            const myResourcesCount = myResources.data?.resources?.length || 0;
+            let myResourcesCount = 0;
+            try {
+                const myResources = await api.getMyResources();
+                console.log('My Resources response:', myResources);
+                myResourcesCount = Array.isArray(myResources.data?.resources) ? myResources.data.resources.length : 0;
+            } catch (e) {
+                console.warn('Could not load my resources:', e.message);
+            }
             
-            // Load request counts
-            const counts = await api.getRequestCounts();
+            // Load request counts (as requester - requests this user sent to others)
+            let pendingCount = 0;
+            let approvedCount = 0;
+            let totalRequests = 0;
+            try {
+                const counts = await api.getRequestCounts(true); // asRequester=true for customer
+                console.log('Request counts response (as requester):', counts);
+                pendingCount = counts.data?.pending ?? 0;
+                approvedCount = counts.data?.approved ?? 0;
+                totalRequests = counts.data?.total ?? 0;
+            } catch (e) {
+                console.warn('Could not load request counts:', e.message);
+            }
             
             // Load total platform resources
-            const stats = await api.getResourceStats();
+            let totalPlatformResources = 0;
+            try {
+                const stats = await api.getResourceStats();
+                console.log('Resource stats response:', stats);
+                totalPlatformResources = stats.data?.total_resources ?? 0;
+            } catch (e) {
+                console.warn('Could not load resource stats:', e.message);
+            }
 
             // Update stat cards
             const myResourcesEl = document.getElementById('statMyResources');
@@ -562,46 +586,60 @@ document.addEventListener('DOMContentLoaded', () => {
             const approvedEl = document.getElementById('statApprovedRequests');
             const totalEl = document.getElementById('statTotalResources');
 
+            console.log('Updating stats:', { myResourcesCount, pendingCount, approvedCount, totalPlatformResources });
+            
             if (myResourcesEl) myResourcesEl.textContent = myResourcesCount;
-            if (pendingEl) pendingEl.textContent = counts.data?.pending ?? 0;
-            if (approvedEl) approvedEl.textContent = counts.data?.approved ?? 0;
-            if (totalEl) totalEl.textContent = stats.data?.total_resources ?? 0;
+            if (pendingEl) pendingEl.textContent = pendingCount;
+            if (approvedEl) approvedEl.textContent = approvedCount;
+            if (totalEl) totalEl.textContent = totalPlatformResources;
 
             // Load active resources for overview (user's listed resources)
             const resourcesList = document.getElementById('overviewActiveResources');
             if (resourcesList) {
-                if (myResources.data?.resources?.length > 0) {
-                    resourcesList.innerHTML = myResources.data.resources.slice(0, 4).map(r => `
-                        <div class="resource-list-item">
-                            <div class="resource-item-icon ${r.category_slug || 'hardware'}"><i class="fas fa-${r.category_slug === 'software' ? 'palette' : r.category_slug === 'license' ? 'key' : 'laptop'}"></i></div>
-                            <div class="resource-item-info">
-                                <strong>${r.title}</strong>
-                                <span>${r.category_name} • ${r.condition}</span>
+                try {
+                    const myResources = await api.getMyResources();
+                    if (myResources.data?.resources?.length > 0) {
+                        resourcesList.innerHTML = myResources.data.resources.slice(0, 4).map(r => `
+                            <div class="resource-list-item">
+                                <div class="resource-item-icon ${r.category_slug || 'hardware'}"><i class="fas fa-${r.category_slug === 'software' ? 'palette' : r.category_slug === 'license' ? 'key' : 'laptop'}"></i></div>
+                                <div class="resource-item-info">
+                                    <strong>${r.title}</strong>
+                                    <span>${r.category_name} • ${r.condition}</span>
+                                </div>
+                                <span class="status-badge ${r.availability}">${r.availability}</span>
                             </div>
-                            <span class="status-badge ${r.availability}">${r.availability}</span>
-                        </div>
-                    `).join('');
-                } else {
-                    resourcesList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">You haven\'t listed any resources yet.</p>';
+                        `).join('');
+                    } else {
+                        resourcesList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">You haven\'t listed any resources yet.</p>';
+                    }
+                } catch (e) {
+                    console.warn('Could not load resources for overview:', e.message);
+                    resourcesList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">Unable to load resources</p>';
                 }
             }
 
             // Load recent activity (from requests)
             const activityList = document.getElementById('overviewRecentActivity');
             if (activityList) {
-                const sentRequests = await api.getSentRequests();
-                if (sentRequests.data?.requests?.length > 0) {
-                    activityList.innerHTML = sentRequests.data.requests.slice(0, 4).map(r => `
-                        <div class="notification-item ${r.status === 'pending' ? 'unread' : ''}">
-                            <div class="notification-dot"></div>
-                            <div class="notification-content">
-                                <p>Your request for <strong>${r.resource_title}</strong> is <strong>${r.status}</strong>.</p>
-                                <span>${formatDate(r.requested_at)}</span>
+                try {
+                    const sentRequests = await api.getSentRequests();
+                    console.log('Sent requests response:', sentRequests);
+                    if (sentRequests.data?.requests?.length > 0) {
+                        activityList.innerHTML = sentRequests.data.requests.slice(0, 4).map(r => `
+                            <div class="notification-item ${r.status === 'pending' ? 'unread' : ''}">
+                                <div class="notification-dot"></div>
+                                <div class="notification-content">
+                                    <p>Your request for <strong>${r.resource_title}</strong> is <strong>${r.status}</strong>.</p>
+                                    <span>${formatDate(r.requested_at)}</span>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
-                } else {
-                    activityList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No recent activity</p>';
+                        `).join('');
+                    } else {
+                        activityList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No recent activity</p>';
+                    }
+                } catch (e) {
+                    console.warn('Could not load activity:', e.message);
+                    activityList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">Unable to load activity</p>';
                 }
             }
 
@@ -719,13 +757,15 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const sent = await api.getSentRequests();
             const received = await api.getReceivedRequests();
-            const counts = await api.getRequestCounts();
+            const counts = await api.getRequestCounts(true); // asRequester=true for customer
 
-            // Update request counts from API
-            const pendingEl = document.getElementById('statPendingRequests');
-            const approvedEl = document.getElementById('statApprovedRequests');
-            const rejectedEl = document.getElementById('statRejectedRequests');
-            const totalEl = document.getElementById('statTotalRequests');
+            console.log('Request counts for My Requests section (as requester):', counts);
+
+            // Update request counts from API (using correct IDs from HTML)
+            const pendingEl = document.getElementById('reqStatPending');
+            const approvedEl = document.getElementById('reqStatApproved');
+            const rejectedEl = document.getElementById('reqStatRejected');
+            const totalEl = document.getElementById('reqStatTotal');
 
             if (pendingEl) pendingEl.textContent = counts.data?.pending ?? 0;
             if (approvedEl) approvedEl.textContent = counts.data?.approved ?? 0;
@@ -735,12 +775,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const list = document.querySelector('#section-my-requests .requests-list');
             if (!list) return;
 
-            // Combine sent and received requests, showing sent requests first
-            // For regular users, show their sent requests (requests they made to others)
-            // For resource owners, also show received requests (requests others made for their resources)
-            
+            // Combine sent and received requests
             let allRequests = [];
-            
+
             // Add sent requests (requests this user made)
             if (sent.data?.requests?.length > 0) {
                 allRequests = allRequests.concat(sent.data.requests.map(r => ({
@@ -748,7 +785,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     _type: 'sent'
                 })));
             }
-            
+
             // Add received requests (requests others made for this user's resources)
             if (received.data?.requests?.length > 0) {
                 allRequests = allRequests.concat(received.data.requests.map(r => ({
@@ -1036,7 +1073,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Load counts
             const myResources = await api.getMyResources();
-            const counts = await api.getRequestCounts();
+            const counts = await api.getRequestCounts(true); // asRequester=true for customer
             
             document.getElementById('profileResourcesCount').textContent = myResources.data?.resources?.length || 0;
             document.getElementById('profileRequestsCount').textContent = counts.data?.total || 0;

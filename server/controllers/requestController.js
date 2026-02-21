@@ -164,10 +164,13 @@ const getAllRequests = async (req, res, next) => {
 // @access  Private
 const getRequestCounts = async (req, res, next) => {
     try {
-        const counts = await Request.getCounts(
-            req.user.role === 'admin' ? null : req.user.id
-        );
+        const { asRequester } = req.query;
         
+        const counts = await Request.getCounts(
+            req.user.role === 'admin' ? null : req.user.id,
+            asRequester === 'true'
+        );
+
         res.json({
             success: true,
             data: counts

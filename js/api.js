@@ -132,7 +132,7 @@ const api = {
     rejectRequest(id, admin_note = '') { return this.put(`/requests/${id}/reject`, { admin_note }); },
     returnResource(id) { return this.put(`/requests/${id}/return`, {}); },
     cancelRequest(id) { return this.del(`/requests/${id}/cancel`); },
-    getRequestCounts() { return this.get('/requests/counts'); },
+    getRequestCounts(asRequester = false) { return this.get(`/requests/counts${asRequester ? '?asRequester=true' : ''}`); },
 
     // ─── Categories ───
     getCategories() { return this.get('/categories'); },
