@@ -113,7 +113,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const modalId = modalMap[type];
         if (modalId) {
             const modal = document.getElementById(modalId);
-            if (modal) modal.classList.add('show');
+            if (modal) {
+                // Ensure categories are loaded for add resource modal
+                if (type === 'addResource') {
+                    const resCategory = document.getElementById('resCategory');
+                    if (resCategory && resCategory.options.length <= 1) {
+                        loadAdminCategories();
+                    }
+                }
+                modal.classList.add('show');
+            }
         }
     };
 
@@ -443,13 +452,32 @@ document.addEventListener('DOMContentLoaded', () => {
             addResourceForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
 
+                // Get form values
+                const categoryId = document.getElementById('resCategory').value;
+                const title = document.getElementById('resName').value.trim();
+                const description = document.getElementById('resDescription').value.trim();
+                const condition = document.getElementById('resCondition')?.value || 'good';
+                const location = document.getElementById('resLocation')?.value.trim() || '';
+                const contactInfo = document.getElementById('resContact')?.value.trim() || '';
+
+                // Validate
+                if (!categoryId) {
+                    showToast('Please select a category', 'error');
+                    return;
+                }
+
+                if (!title) {
+                    showToast('Please enter a resource name', 'error');
+                    return;
+                }
+
                 const formData = {
-                    category_id: parseInt(document.getElementById('resCategory').value),
-                    title: document.getElementById('resName').value.trim(),
-                    description: document.getElementById('resDescription').value.trim(),
-                    condition: document.getElementById('resCondition')?.value || 'good',
-                    location: document.getElementById('resLocation')?.value.trim() || 'Admin Resource',
-                    contact_info: document.getElementById('resContact')?.value.trim() || 'Contact Admin'
+                    category_id: parseInt(categoryId),
+                    title: title,
+                    description: description,
+                    condition: condition,
+                    location: location,
+                    contact_info: contactInfo
                 };
 
                 try {
@@ -457,9 +485,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast('Resource added successfully');
                     closeAdminModal('addResourceModal');
                     addResourceForm.reset();
+                    // Reload resources to show the new one
                     loadAdminResources();
+                    // Also reload overview to update stats
+                    loadAdminOverview();
                 } catch (e) {
-                    showToast(e.message, 'error');
+                    showToast(e.message || 'Failed to add resource', 'error');
                 }
             });
         }
@@ -654,46 +685,62 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const sent = await api.getSentRequests();
             const received = await api.getReceivedRequests();
-            
-            // Update request counts
-            const sentCount = document.querySelector('#section-my-requests .stat-card-value');
-            if (sentCount) sentCount.textContent = sent.data?.total ?? 0;
-            
-            // Show received requests for resource owners
+            const counts = await api.getRequestCounts();
+
+            // Update request counts from API
+            const pendingEl = document.getElementById('statPendingRequests');
+            const approvedEl = document.getElementById('statApprovedRequests');
+            const rejectedEl = document.getElementById('statRejectedRequests');
+            const totalEl = document.getElementById('statTotalRequests');
+
+            if (pendingEl) pendingEl.textContent = counts.data?.pending ?? 0;
+            if (approvedEl) approvedEl.textContent = counts.data?.approved ?? 0;
+            if (rejectedEl) rejectedEl.textContent = counts.data?.rejected ?? 0;
+            if (totalEl) totalEl.textContent = counts.data?.total ?? 0;
+
+            // Show received requests for resource owners (when others request your resources)
             const list = document.querySelector('#section-my-requests .requests-list');
-            if (list && received.data.requests.length > 0) {
-                list.innerHTML = received.data.requests.map(r => `
-                    <div class="request-card" data-id="${r.id}">
-                        <div class="request-card-header">
-                            <div class="request-card-user">
-                                <div class="topbar-avatar" style="width:36px;height:36px;font-size:12px;">${(r.requester_first_name || '?').charAt(0)}${(r.requester_last_name || '').charAt(0)}</div>
-                                <div>
-                                    <strong>${r.requester_first_name} ${r.requester_last_name}</strong>
-                                    <span>${r.requester_email}</span>
+            if (list) {
+                if (received.data.requests.length === 0) {
+                    list.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">No requests for your resources yet.</p>';
+                } else {
+                    list.innerHTML = received.data.requests.map(r => `
+                        <div class="request-card" data-id="${r.id}">
+                            <div class="request-card-header">
+                                <div class="request-card-user">
+                                    <div class="topbar-avatar" style="width:36px;height:36px;font-size:12px;">${(r.requester_first_name || '?').charAt(0)}${(r.requester_last_name || '').charAt(0)}</div>
+                                    <div>
+                                        <strong>${r.requester_first_name} ${r.requester_last_name}</strong>
+                                        <span>${r.requester_email}</span>
+                                    </div>
+                                </div>
+                                <span class="status-badge ${r.status}">${r.status}</span>
+                            </div>
+                            <div class="request-card-body">
+                                <h4><i class="fas fa-cube"></i> ${r.resource_title}</h4>
+                            </div>
+                            <div class="request-reason">${r.message || 'No message provided'}</div>
+                            <div class="request-card-footer">
+                                <span><i class="far fa-clock"></i> ${formatDate(r.requested_at)}</span>
+                                <div class="request-actions">
+                                    ${r.status === 'pending' ? `
+                                        <button class="btn btn-success btn-sm" onclick="approveReq(${r.id})"><i class="fas fa-check"></i> Approve</button>
+                                        <button class="btn btn-danger btn-sm" onclick="rejectReq(${r.id})"><i class="fas fa-times"></i> Reject</button>
+                                    ` : r.status === 'approved' ? `
+                                        <button class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i> Approved</button>
+                                    ` : ''}
                                 </div>
                             </div>
-                            <span class="status-badge ${r.status}">${r.status}</span>
                         </div>
-                        <div class="request-card-body">
-                            <h4><i class="fas fa-cube"></i> ${r.resource_title}</h4>
-                        </div>
-                        <div class="request-reason">${r.message || 'No message provided'}</div>
-                        <div class="request-card-footer">
-                            <span><i class="far fa-clock"></i> ${formatDate(r.requested_at)}</span>
-                            <div class="request-actions">
-                                ${r.status === 'pending' ? `
-                                    <button class="btn btn-success btn-sm" onclick="approveReq(${r.id})"><i class="fas fa-check"></i> Approve</button>
-                                    <button class="btn btn-danger btn-sm" onclick="rejectReq(${r.id})"><i class="fas fa-times"></i> Reject</button>
-                                ` : r.status === 'approved' ? `
-                                    <button class="btn btn-secondary btn-sm" disabled><i class="fas fa-check"></i> Approved</button>
-                                ` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `).join('');
+                    `).join('');
+                }
             }
         } catch (e) {
             console.error('Load my requests error:', e);
+            const list = document.querySelector('#section-my-requests .requests-list');
+            if (list) {
+                list.innerHTML = `<p style="text-align:center;color:var(--danger);padding:40px;">Error loading requests: ${e.message}</p>`;
+            }
         }
     }
 

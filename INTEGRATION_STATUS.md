@@ -31,6 +31,9 @@ All integrations between the frontend and backend have been reviewed and fixed. 
 
 **Files Modified:**
 - `js/api.js` - Fixed `saveAuth()` to handle nested response structure
+- `js/script.js` - Removed deprecated `year_semester` field
+- `server/models/User.js` - Removed `year_semester` and `wallet_address` columns
+- `server/controllers/authController.js` - Removed deprecated fields from responses
 
 ---
 
@@ -49,6 +52,15 @@ All integrations between the frontend and backend have been reviewed and fixed. 
 
 **Backend Controller:** `server/controllers/resourceController.js`  
 **Model:** `server/models/Resource.js`
+
+**Admin Add Resource Feature:**
+- ✅ Modal opens with "Add Resource" button
+- ✅ Category dropdown loads dynamically from API
+- ✅ Form validation (category and title required)
+- ✅ Creates resource via API
+- ✅ Shows success/error toast notifications
+- ✅ Reloads resource list after creation
+- ✅ Updates dashboard stats
 
 ---
 

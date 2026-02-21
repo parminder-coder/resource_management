@@ -212,108 +212,9 @@
             </div>
 
             <!-- Resource Cards Grid -->
-            <div class="browse-grid">
-                <div class="browse-card">
-                    <div class="browse-card-icon hardware">
-                        <i class="fas fa-laptop"></i>
-                    </div>
-                    <div class="browse-card-info">
-                        <h4>MacBook Pro 16"</h4>
-                        <span class="category-badge hardware">Hardware</span>
-                        <p>Apple M3 Max, 36GB RAM, 1TB SSD. Ideal for development and creative work.</p>
-                        <div class="browse-card-meta">
-                            <span><i class="fas fa-boxes-stacked"></i> 5 available</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm btn-block" onclick="showCustomerModal('requestResource')">
-                        <i class="fas fa-paper-plane"></i> Request
-                    </button>
-                </div>
-
-                <div class="browse-card">
-                    <div class="browse-card-icon software">
-                        <i class="fas fa-paint-brush"></i>
-                    </div>
-                    <div class="browse-card-info">
-                        <h4>Adobe Creative Suite</h4>
-                        <span class="category-badge software">Software</span>
-                        <p>Full Creative Cloud access including Photoshop, Illustrator, Premiere Pro, and more.</p>
-                        <div class="browse-card-meta">
-                            <span><i class="fas fa-boxes-stacked"></i> 12 available</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm btn-block" onclick="showCustomerModal('requestResource')">
-                        <i class="fas fa-paper-plane"></i> Request
-                    </button>
-                </div>
-
-                <div class="browse-card">
-                    <div class="browse-card-icon license">
-                        <i class="fas fa-key"></i>
-                    </div>
-                    <div class="browse-card-info">
-                        <h4>Slack Business+</h4>
-                        <span class="category-badge license">License</span>
-                        <p>Enterprise communication platform with advanced security and compliance features.</p>
-                        <div class="browse-card-meta">
-                            <span><i class="fas fa-boxes-stacked"></i> 20 available</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm btn-block" onclick="showCustomerModal('requestResource')">
-                        <i class="fas fa-paper-plane"></i> Request
-                    </button>
-                </div>
-
-                <div class="browse-card">
-                    <div class="browse-card-icon hardware">
-                        <i class="fas fa-desktop"></i>
-                    </div>
-                    <div class="browse-card-info">
-                        <h4>Dell UltraSharp 32" 4K</h4>
-                        <span class="category-badge hardware">Hardware</span>
-                        <p>32-inch 4K IPS monitor with USB-C connection, ideal for design and productivity.</p>
-                        <div class="browse-card-meta">
-                            <span><i class="fas fa-boxes-stacked"></i> 3 available</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm btn-block" onclick="showCustomerModal('requestResource')">
-                        <i class="fas fa-paper-plane"></i> Request
-                    </button>
-                </div>
-
-                <div class="browse-card">
-                    <div class="browse-card-icon equipment">
-                        <i class="fas fa-headphones"></i>
-                    </div>
-                    <div class="browse-card-info">
-                        <h4>Sony WH-1000XM5</h4>
-                        <span class="category-badge equipment">Equipment</span>
-                        <p>Industry-leading noise canceling headphones with 30hr battery life.</p>
-                        <div class="browse-card-meta">
-                            <span><i class="fas fa-boxes-stacked"></i> 8 available</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm btn-block" onclick="showCustomerModal('requestResource')">
-                        <i class="fas fa-paper-plane"></i> Request
-                    </button>
-                </div>
-
-                <div class="browse-card">
-                    <div class="browse-card-icon software">
-                        <i class="fas fa-code"></i>
-                    </div>
-                    <div class="browse-card-info">
-                        <h4>JetBrains All Products</h4>
-                        <span class="category-badge software">Software</span>
-                        <p>Complete IDE pack including IntelliJ, WebStorm, PyCharm, and all JetBrains tools.</p>
-                        <div class="browse-card-meta">
-                            <span><i class="fas fa-boxes-stacked"></i> 15 available</span>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary btn-sm btn-block" onclick="showCustomerModal('requestResource')">
-                        <i class="fas fa-paper-plane"></i> Request
-                    </button>
-                </div>
+            <div class="resources-grid" id="browseResourcesGrid">
+                <!-- Resources loaded dynamically from API -->
+                <p style="text-align:center;color:var(--gray);padding:40px;grid-column:1/-1;">Loading resources...</p>
             </div>
         </section>
 
@@ -340,92 +241,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>MacBook Pro 14"</strong></td>
-                            <td><span class="category-badge hardware">Hardware</span></td>
-                            <td>Feb 01, 2026</td>
-                            <td>May 01, 2026</td>
-                            <td><span class="status-badge in-use">Active</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Figma Enterprise</strong></td>
-                            <td><span class="category-badge software">Software</span></td>
-                            <td>Jan 15, 2026</td>
-                            <td>Jul 15, 2026</td>
-                            <td><span class="status-badge in-use">Active</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Microsoft 365 License</strong></td>
-                            <td><span class="category-badge license">License</span></td>
-                            <td>Jan 10, 2026</td>
-                            <td>Jan 10, 2027</td>
-                            <td><span class="status-badge in-use">Active</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Dell UltraSharp 27" Monitor</strong></td>
-                            <td><span class="category-badge hardware">Hardware</span></td>
-                            <td>Feb 10, 2026</td>
-                            <td>Mar 05, 2026</td>
-                            <td><span class="status-badge pending">Due Soon</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Logitech MX Master 3S</strong></td>
-                            <td><span class="category-badge equipment">Equipment</span></td>
-                            <td>Feb 05, 2026</td>
-                            <td>Aug 05, 2026</td>
-                            <td><span class="status-badge in-use">Active</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Zoom Business License</strong></td>
-                            <td><span class="category-badge license">License</span></td>
-                            <td>Jan 20, 2026</td>
-                            <td>Jan 20, 2027</td>
-                            <td><span class="status-badge in-use">Active</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>External SSD 2TB</strong></td>
-                            <td><span class="category-badge hardware">Hardware</span></td>
-                            <td>Feb 12, 2026</td>
-                            <td>May 12, 2026</td>
-                            <td><span class="status-badge in-use">Active</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><strong>Standing Desk Converter</strong></td>
-                            <td><span class="category-badge equipment">Equipment</span></td>
-                            <td>Jan 28, 2026</td>
-                            <td>Jul 28, 2026</td>
-                            <td><span class="status-badge in-use">Active</span></td>
-                            <td class="actions-cell">
-                                <button class="action-btn view" title="View Details"><i class="fas fa-eye"></i></button>
-                                <button class="action-btn return" title="Return Resource"><i class="fas fa-undo"></i></button>
-                            </td>
+                            <td colspan="6" style="text-align:center;padding:40px;color:var(--gray);">Loading your resources...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -449,123 +265,25 @@
             <!-- Request Status Overview -->
             <div class="request-stats">
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--accent);">3</div>
+                    <div class="request-stat-number" style="color:var(--accent);" id="statPendingRequests">0</div>
                     <div class="request-stat-label">Pending</div>
                 </div>
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--success);">12</div>
+                    <div class="request-stat-number" style="color:var(--success);" id="statApprovedRequests">0</div>
                     <div class="request-stat-label">Approved</div>
                 </div>
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--danger);">2</div>
+                    <div class="request-stat-number" style="color:var(--danger);" id="statRejectedRequests">0</div>
                     <div class="request-stat-label">Rejected</div>
                 </div>
                 <div class="request-stat-card">
-                    <div class="request-stat-number" style="color:var(--primary);">17</div>
+                    <div class="request-stat-number" style="color:var(--primary);" id="statTotalRequests">0</div>
                     <div class="request-stat-label">Total</div>
                 </div>
             </div>
 
             <div class="requests-list">
-                <div class="request-card">
-                    <div class="request-card-header">
-                        <div class="request-card-user">
-                            <div class="request-id-badge">#1048</div>
-                            <div>
-                                <strong>MacBook Pro 16"</strong>
-                                <span>Submitted Feb 18, 2026</span>
-                            </div>
-                        </div>
-                        <span class="status-badge pending">Pending</span>
-                    </div>
-                    <div class="request-card-body">
-                        <p class="request-reason">Needed for the new design project starting next week. Current machine is unable to handle the rendering workload.</p>
-                    </div>
-                    <div class="request-card-actions">
-                        <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i> View Details</button>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Cancel Request</button>
-                    </div>
-                </div>
-
-                <div class="request-card">
-                    <div class="request-card-header">
-                        <div class="request-card-user">
-                            <div class="request-id-badge">#1045</div>
-                            <div>
-                                <strong>Adobe Creative Suite</strong>
-                                <span>Submitted Feb 15, 2026</span>
-                            </div>
-                        </div>
-                        <span class="status-badge pending">Pending</span>
-                    </div>
-                    <div class="request-card-body">
-                        <p class="request-reason">Need full Creative Cloud access for marketing campaign visuals and video editing tasks.</p>
-                    </div>
-                    <div class="request-card-actions">
-                        <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i> View Details</button>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Cancel Request</button>
-                    </div>
-                </div>
-
-                <div class="request-card">
-                    <div class="request-card-header">
-                        <div class="request-card-user">
-                            <div class="request-id-badge">#1040</div>
-                            <div>
-                                <strong>Standing Desk - Height Adjustable</strong>
-                                <span>Submitted Feb 12, 2026</span>
-                            </div>
-                        </div>
-                        <span class="status-badge pending">Pending</span>
-                    </div>
-                    <div class="request-card-body">
-                        <p class="request-reason">Ergonomic desk needed for better work posture. Doctor recommended standing desk for health reasons.</p>
-                    </div>
-                    <div class="request-card-actions">
-                        <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i> View Details</button>
-                        <button class="btn btn-danger btn-sm"><i class="fas fa-times"></i> Cancel Request</button>
-                    </div>
-                </div>
-
-                <div class="request-card">
-                    <div class="request-card-header">
-                        <div class="request-card-user">
-                            <div class="request-id-badge">#1032</div>
-                            <div>
-                                <strong>External SSD 2TB</strong>
-                                <span>Submitted Feb 08, 2026</span>
-                            </div>
-                        </div>
-                        <span class="status-badge available">Approved</span>
-                    </div>
-                    <div class="request-card-body">
-                        <p class="request-reason">Additional storage needed for large design files and project backups.</p>
-                        <p class="request-admin-note"><i class="fas fa-comment"></i> <strong>Admin:</strong> Approved. Please collect from IT desk.</p>
-                    </div>
-                    <div class="request-card-actions">
-                        <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i> View Details</button>
-                    </div>
-                </div>
-
-                <div class="request-card">
-                    <div class="request-card-header">
-                        <div class="request-card-user">
-                            <div class="request-id-badge">#1035</div>
-                            <div>
-                                <strong>Slack Business+</strong>
-                                <span>Submitted Feb 10, 2026</span>
-                            </div>
-                        </div>
-                        <span class="status-badge rejected">Rejected</span>
-                    </div>
-                    <div class="request-card-body">
-                        <p class="request-reason">Need Slack license for team communication and project coordination.</p>
-                        <p class="request-admin-note"><i class="fas fa-comment"></i> <strong>Admin:</strong> Your team already has Microsoft Teams licenses. Please use that instead.</p>
-                    </div>
-                    <div class="request-card-actions">
-                        <button class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i> View Details</button>
-                    </div>
-                </div>
+                <p style="text-align:center;color:var(--gray);padding:40px;">Loading your requests...</p>
             </div>
         </section>
 
