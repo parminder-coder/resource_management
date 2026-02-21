@@ -15,16 +15,20 @@ const api = {
         const u = localStorage.getItem('rms_user');
         return u ? JSON.parse(u) : null;
     },
-    // Save auth data
+    // Save auth data (handles both nested and flat response structures)
     saveAuth(data) {
-        localStorage.setItem('rms_token', data.token);
+        // Backend returns: { success: true, data: { token, user: {...} } }
+        const token = data?.token || data?.data?.token;
+        const user = data?.user || data?.data?.user;
+        
+        localStorage.setItem('rms_token', token);
         localStorage.setItem('rms_user', JSON.stringify({
-            id: data.user?.id,
-            first_name: data.user?.first_name,
-            last_name: data.user?.last_name,
-            email: data.user?.email,
-            role: data.user?.role,
-            department: data.user?.department
+            id: user?.id,
+            first_name: user?.first_name,
+            last_name: user?.last_name,
+            email: user?.email,
+            role: user?.role,
+            department: user?.department
         }));
     },
     // Logout

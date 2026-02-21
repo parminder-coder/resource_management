@@ -361,8 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 last_name: document.getElementById('signup-lastname').value,
                 email: document.getElementById('signup-email').value,
                 password: password,
-                department: document.getElementById('signup-company').value,
-                year_semester: ''
+                department: document.getElementById('signup-company').value
             };
 
             try {

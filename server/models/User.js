@@ -17,29 +17,27 @@ class User {
             email,
             password,
             phone,
-            department,
-            year_semester
+            department
         } = userData;
-        
+
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const password_hash = await bcrypt.hash(password, salt);
-        
+
         const sql = `
-            INSERT INTO users (first_name, last_name, email, password_hash, phone, department, year_semester)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO users (first_name, last_name, email, password_hash, phone, department)
+            VALUES (?, ?, ?, ?, ?, ?)
         `;
-        
+
         const [result] = await pool.query(sql, [
             first_name,
             last_name,
             email,
             password_hash,
             phone,
-            department,
-            year_semester
+            department
         ]);
-        
+
         return result.insertId;
     }
     
@@ -56,7 +54,7 @@ class User {
      * Find user by ID
      */
     static async findById(id) {
-        const sql = 'SELECT id, first_name, last_name, email, role, phone, department, year_semester, wallet_address, is_verified, is_blocked, created_at FROM users WHERE id = ?';
+        const sql = 'SELECT id, first_name, last_name, email, role, phone, department, is_verified, is_blocked, created_at FROM users WHERE id = ?';
         const [rows] = await pool.query(sql, [id]);
         return rows[0] || null;
     }
@@ -72,23 +70,23 @@ class User {
      * Update user profile
      */
     static async update(id, userData) {
-        const allowedFields = ['first_name', 'last_name', 'phone', 'department', 'year_semester', 'wallet_address'];
+        const allowedFields = ['first_name', 'last_name', 'phone', 'department'];
         const updates = [];
         const values = [];
-        
+
         for (const [key, value] of Object.entries(userData)) {
             if (allowedFields.includes(key) && value !== undefined) {
                 updates.push(`${key} = ?`);
                 values.push(value);
             }
         }
-        
+
         if (updates.length === 0) return false;
-        
+
         values.push(id);
         const sql = `UPDATE users SET ${updates.join(', ')} WHERE id = ?`;
         const [result] = await pool.query(sql, values);
-        
+
         return result.affectedRows > 0;
     }
     
@@ -111,44 +109,43 @@ class User {
     static async findAll({ page = 1, limit = 10, search = '', role = '' } = {}) {
         const offset = (page - 1) * limit;
         let sql = `
-            SELECT id, first_name, last_name, email, role, phone, department, 
-                   year_semester, is_verified, is_blocked, created_at
+            SELECT id, first_name, last_name, email, role, phone, department, is_verified, is_blocked, created_at
             FROM users
             WHERE 1=1
         `;
         const params = [];
-        
+
         if (search) {
             sql += ` AND (first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)`;
             params.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
-        
+
         if (role) {
             sql += ` AND role = ?`;
             params.push(role);
         }
-        
+
         sql += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
         params.push(limit, offset);
-        
+
         const [rows] = await pool.query(sql, params);
-        
+
         // Get total count
         let countSql = 'SELECT COUNT(*) as total FROM users WHERE 1=1';
         const countParams = [];
-        
+
         if (search) {
             countSql += ` AND (first_name LIKE ? OR last_name LIKE ? OR email LIKE ?)`;
             countParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
-        
+
         if (role) {
             countSql += ` AND role = ?`;
             countParams.push(role);
         }
-        
+
         const [{ total }] = await pool.query(countSql, countParams);
-        
+
         return {
             users: rows,
             total: Number(total),

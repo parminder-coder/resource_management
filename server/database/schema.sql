@@ -18,8 +18,6 @@ CREATE TABLE users (
     role ENUM('user', 'admin') DEFAULT 'user',
     phone VARCHAR(20),
     department VARCHAR(100),
-    year_semester VARCHAR(50),
-    wallet_address VARCHAR(255),
     is_verified BOOLEAN DEFAULT FALSE,
     is_blocked BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

@@ -198,14 +198,11 @@
                     <input type="text" placeholder="Search available resources..." id="browseSearch">
                 </div>
                 <div class="filter-group">
-                    <select class="filter-select">
+                    <select class="filter-select" id="browseCategory">
                         <option value="">All Categories</option>
-                        <option value="hardware">Hardware</option>
-                        <option value="software">Software</option>
-                        <option value="license">Licenses</option>
-                        <option value="equipment">Equipment</option>
+                        <!-- Categories loaded dynamically from API -->
                     </select>
-                    <select class="filter-select">
+                    <select class="filter-select" id="browseSort">
                         <option value="">Sort By</option>
                         <option value="name">Name</option>
                         <option value="category">Category</option>

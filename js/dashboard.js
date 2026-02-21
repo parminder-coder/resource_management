@@ -162,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadAdminUsers().catch(err => console.error('Failed to load admin users:', err));
         loadAdminRequests().catch(err => console.error('Failed to load admin requests:', err));
         setupAdminForms();
+        loadAdminCategories();
     }
 
 
@@ -441,21 +442,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (addResourceForm) {
             addResourceForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                
-                // Get category ID from name (we'll use slug for now and map it)
-                const categoryMap = {
-                    'hardware': 2,    // Electronics
-                    'software': 2,    // Electronics
-                    'license': 10,    // Other
-                    'equipment': 9    // Lab Equipment
-                };
-                
+
                 const formData = {
-                    category_id: categoryMap[document.getElementById('resCategory').value] || 10,
+                    category_id: parseInt(document.getElementById('resCategory').value),
                     title: document.getElementById('resName').value.trim(),
                     description: document.getElementById('resDescription').value.trim(),
-                    location: 'Admin Resource',
-                    contact_info: 'Contact Admin'
+                    condition: document.getElementById('resCondition')?.value || 'good',
+                    location: document.getElementById('resLocation')?.value.trim() || 'Admin Resource',
+                    contact_info: document.getElementById('resContact')?.value.trim() || 'Contact Admin'
                 };
 
                 try {
@@ -468,6 +462,27 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast(e.message, 'error');
                 }
             });
+        }
+    }
+
+    async function loadAdminCategories() {
+        try {
+            const response = await api.getCategories();
+            const categories = response.data?.categories || [];
+            
+            const categoryFilter = document.getElementById('categoryFilter');
+            const resCategory = document.getElementById('resCategory');
+            
+            if (categoryFilter && categories.length > 0) {
+                categoryFilter.innerHTML = '<option value="">All Categories</option>' + 
+                    categories.map(cat => `<option value="${cat.slug}">${cat.name}</option>`).join('');
+            }
+            
+            if (resCategory && categories.length > 0) {
+                resCategory.innerHTML = categories.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+            }
+        } catch (e) {
+            console.error('Failed to load categories:', e);
         }
     }
 
@@ -485,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Load stats
             const stats = await api.getResourceStats();
             const counts = await api.getRequestCounts();
-            
+
             const statValues = document.querySelectorAll('#section-overview .stat-card-value');
             if (statValues[0]) statValues[0].textContent = stats.data?.total_resources ?? 0;
             if (statValues[1]) statValues[1].textContent = counts.data?.pending ?? 0;
@@ -530,8 +545,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     activityList.innerHTML = '<p style="text-align:center;color:var(--gray);padding:20px;">No recent activity</p>';
                 }
             }
+
+            // Load categories dynamically for filter dropdown
+            await loadCategories();
         } catch (e) {
             console.error('Customer overview error:', e);
+            // Still try to load categories even if other things fail
+            await loadCategories();
+        }
+    }
+
+    // Load categories for filter dropdowns
+    async function loadCategories() {
+        try {
+            const response = await api.getCategories();
+            const categories = response.data?.categories || [];
+            
+            const browseCategory = document.getElementById('browseCategory');
+            if (browseCategory && categories.length > 0) {
+                // Keep the "All Categories" option
+                browseCategory.innerHTML = '<option value="">All Categories</option>' + 
+                    categories.map(cat => `<option value="${cat.slug}">${cat.name}</option>`).join('');
+            }
+        } catch (e) {
+            console.error('Failed to load categories:', e);
         }
     }
 

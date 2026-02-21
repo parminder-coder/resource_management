@@ -21,8 +21,8 @@ const generateToken = (user) => {
 // @access  Public
 const register = async (req, res, next) => {
     try {
-        const { first_name, last_name, email, password, phone, department, year_semester } = req.body;
-        
+        const { first_name, last_name, email, password, phone, department } = req.body;
+
         // Validation
         if (!first_name || !last_name || !email || !password) {
             return res.status(400).json({
@@ -30,7 +30,7 @@ const register = async (req, res, next) => {
                 message: 'First name, last name, email, and password are required'
             });
         }
-        
+
         // Check if user already exists
         const existingUser = await User.findByEmail(email);
         if (existingUser) {
@@ -39,7 +39,7 @@ const register = async (req, res, next) => {
                 message: 'User with this email already exists'
             });
         }
-        
+
         // Create user
         const userId = await User.create({
             first_name,
@@ -47,10 +47,9 @@ const register = async (req, res, next) => {
             email,
             password,
             phone,
-            department,
-            year_semester
+            department
         });
-        
+
         // Log activity
         await Activity.log({
             user_id: userId,
@@ -59,13 +58,13 @@ const register = async (req, res, next) => {
             entity_id: userId,
             details: { email }
         });
-        
+
         // Get created user
         const user = await User.findById(userId);
-        
+
         // Generate token
         const token = generateToken(user);
-        
+
         res.status(201).json({
             success: true,
             message: 'User registered successfully',
@@ -152,8 +151,7 @@ const login = async (req, res, next) => {
                     last_name: user.last_name,
                     email: user.email,
                     role: user.role,
-                    department: user.department,
-                    year_semester: user.year_semester
+                    department: user.department
                 }
             }
         });
@@ -190,33 +188,31 @@ const getProfile = async (req, res, next) => {
 // @access  Private
 const updateProfile = async (req, res, next) => {
     try {
-        const { phone, department, year_semester, wallet_address } = req.body;
-        
+        const { phone, department } = req.body;
+
         const updated = await User.update(req.user.id, {
             phone,
-            department,
-            year_semester,
-            wallet_address
+            department
         });
-        
+
         if (!updated) {
             return res.status(400).json({
                 success: false,
                 message: 'Failed to update profile'
             });
         }
-        
+
         // Log activity
         await Activity.log({
             user_id: req.user.id,
             action: 'profile_updated',
             entity_type: 'user',
             entity_id: req.user.id,
-            details: { phone, department, year_semester, wallet_address }
+            details: { phone, department }
         });
-        
+
         const user = await User.findById(req.user.id);
-        
+
         res.json({
             success: true,
             message: 'Profile updated successfully',
