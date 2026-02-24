@@ -37,12 +37,6 @@
                     </a>
                 </li>
                 <li class="nav-list-item">
-                    <a href="#" class="nav-list-link" data-section="my-resources">
-                        <i class="fas fa-box-open"></i>
-                        <span>My Resources</span>
-                    </a>
-                </li>
-                <li class="nav-list-item">
                     <a href="#" class="nav-list-link" data-section="my-requests">
                         <i class="fas fa-paper-plane"></i>
                         <span>My Requests</span>
@@ -116,16 +110,6 @@
             <!-- Customer Stats -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-card-icon" style="background: rgba(108,60,233,0.1); color: var(--primary);">
-                        <i class="fas fa-box-open"></i>
-                    </div>
-                    <div class="stat-card-info">
-                        <p class="stat-card-label">My Resources</p>
-                        <h3 class="stat-card-value" id="statMyResources">0</h3>
-                        <p class="stat-card-change">Resources you've listed</p>
-                    </div>
-                </div>
-                <div class="stat-card">
                     <div class="stat-card-icon" style="background: rgba(245,158,11,0.1); color: var(--accent);">
                         <i class="fas fa-clock"></i>
                     </div>
@@ -159,17 +143,6 @@
 
             <!-- Dashboard Row -->
             <div class="dashboard-row">
-                <!-- My Active Resources -->
-                <div class="dashboard-card wide">
-                    <div class="card-header">
-                        <h3>My Listed Resources</h3>
-                        <a href="#" class="view-all-link" onclick="navigateTo('my-resources'); return false;">View All</a>
-                    </div>
-                    <div class="resource-list-compact" id="overviewActiveResources">
-                        <p style="text-align:center;color:var(--gray);padding:20px;">Loading...</p>
-                    </div>
-                </div>
-
                 <!-- Recent Notifications -->
                 <div class="dashboard-card">
                     <div class="card-header">
@@ -215,41 +188,6 @@
             <div class="resources-grid" id="browseResourcesGrid">
                 <!-- Resources loaded dynamically from API -->
                 <p style="text-align:center;color:var(--gray);padding:40px;grid-column:1/-1;">Loading resources...</p>
-            </div>
-        </section>
-
-        <!-- ============== MY RESOURCES SECTION ============== -->
-        <section class="dashboard-section" id="section-my-resources">
-            <div class="section-header">
-                <div>
-                    <h1>My Resources</h1>
-                    <p>Resources you've listed for sharing.</p>
-                </div>
-                <div class="section-actions">
-                    <button class="btn btn-primary btn-sm" onclick="showCustomerModal('addResource')">
-                        <i class="fas fa-plus"></i> Add Resource
-                    </button>
-                </div>
-            </div>
-
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Resource</th>
-                            <th>Category</th>
-                            <th>Condition</th>
-                            <th>Location</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td colspan="6" style="text-align:center;padding:40px;color:var(--gray);">Loading your resources...</td>
-                        </tr>
-                    </tbody>
-                </table>
             </div>
         </section>
 
